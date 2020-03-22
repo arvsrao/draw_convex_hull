@@ -1,14 +1,13 @@
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QMainWindow>
-#include <iostream>
-#include <random>
 #include <set>
 #include <string>
+#include <random>
+#include <iostream>
+
 #include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QPointF>
+#include <QtWidgets/QApplication>
+
+#include <include/SlowConvexHull.h>
 #include <include/FastConvexHull.h>
-#include <QVector>
 
 Points generatePoints(const int numPoints, const int maxRange) {
   std::random_device rd;
@@ -50,14 +49,21 @@ void printPath(Points points) {
   for (unsigned long i = 0; i < points.size(); i++) points[i].print();
 }
 
+ConvexHull *convexHullFactory(bool fast_bool, Points &points) {
+  if (fast_bool)
+    return new FastConvexHull(points);
+  return new SlowConvexHull(points);
+}
+
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
 
-  const int NUM_POINTS = 10000;
+  int NUM_POINTS = 500000;
+  bool fast_bool = true;
   auto _points = generatePoints(NUM_POINTS, 200);
 
   // Instantiate convex hull calculator
-  FastConvexHull *convexHullCalculator = new FastConvexHull(_points);
+  ConvexHull *convexHullCalculator = convexHullFactory(fast_bool, _points);
 
   // Create a view, put a scene in it and add tiny circles
   // in the scene
@@ -73,10 +79,3 @@ int main(int argc, char *argv[]) {
 
   return a.exec();
 }
-
-
-//  if (hull.size() != shull.size()) std::cout<< "wrong!!!! " << hull.size() - shull.size();
-
-//    printPath(hull);
-//    std::cout<< "--------------\n";
-//    printPath(shull);

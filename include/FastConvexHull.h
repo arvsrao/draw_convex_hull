@@ -1,12 +1,9 @@
 #ifndef DRAW_CONVEX_HULL_FASTCONVEXHULL_H
 #define DRAW_CONVEX_HULL_FASTCONVEXHULL_H
 
-#include <vector>
-#include "Vector2D.h"
+#include "ConvexHull.h"
 
-using Points = std::vector<Vector2D>;
-
-class FastConvexHull {
+class FastConvexHull : public ConvexHull {
 
  public:
 

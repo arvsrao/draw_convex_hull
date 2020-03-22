@@ -1,9 +1,7 @@
-//
-// Created by arvind on 20.03.20.
-//
-
 #ifndef DRAW_CONVEX_HULL_EDGE_H
 #define DRAW_CONVEX_HULL_EDGE_H
+
+#include <include/Vector2D.h>
 
 struct Edge {
   Vector2D start, end;

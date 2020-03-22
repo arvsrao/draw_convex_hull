@@ -1,11 +1,8 @@
 
-#include <vector>
-#include <include/Edge.h>
-#include <include/Vector2D.h>
 #include <algorithm>
 #include <include/SlowConvexHull.h>
 
-Points SlowConvexHull::getConvexHull() {
+Points &SlowConvexHull::getConvexHull() {
   return hull_points;
 }
 
@@ -63,6 +60,4 @@ SlowConvexHull::SlowConvexHull(const Points &points) {
   hull_points = sortClockwise(hull);
 }
 
-SlowConvexHull::~SlowConvexHull() {
-  delete hull_points;
-}
+SlowConvexHull::~SlowConvexHull() {}

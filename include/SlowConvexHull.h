@@ -5,20 +5,17 @@
 #ifndef DRAW_CONVEX_HULL_SLOWCONVEXHULL_H
 #define DRAW_CONVEX_HULL_SLOWCONVEXHULL_H
 
-#include <vector>
-#include "Vector2D.h"
 #include "Edge.h"
+#include "ConvexHull.h"
 
-class SlowConvexHull {
+class SlowConvexHull : public ConvexHull {
 
  public:
-
-  using Points = std::vector<Vector2D>;
 
   SlowConvexHull(const Points &points);
   virtual ~SlowConvexHull();
 
-  Points getConvexHull();
+  Points &getConvexHull();
 
  private:
   Points hull_points;

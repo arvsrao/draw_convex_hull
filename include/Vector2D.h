@@ -1,7 +1,3 @@
-//
-// Created by arvind on 20.03.20.
-//
-
 #ifndef DRAW_CONVEX_HULL_VECTOR2D_H
 #define DRAW_CONVEX_HULL_VECTOR2D_H
 
@@ -13,7 +9,7 @@ struct Vector2D {
 
   double length() const;
 
-  inline double arccos() const;
+  double arccos() const;
 
   bool operator==(const Vector2D &rhs) const;
 

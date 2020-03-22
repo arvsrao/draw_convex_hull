@@ -4,16 +4,16 @@
 #include <iostream>
 #include <include/Vector2D.h>
 
-constexpr double PI = 3.14159265358979323846;
+const double PI = 3.14159265358979323846;
 
 Vector2D::Vector2D() : x(0), y(0) {}
 Vector2D::Vector2D(int _x, int _y) : x(_x), y(_y) {}
 
-inline double Vector2D::length() const {
+double Vector2D::length() const {
   return std::sqrt((double) (x * x + y * y));
 }
 
-inline double Vector2D::arccos() const {
+double Vector2D::arccos() const {
   // dot with (-1,0)
   if (y < 0)
     return std::acos(double(x) / this->length()) + PI;
