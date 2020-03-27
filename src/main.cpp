@@ -58,9 +58,31 @@ ConvexHull *convexHullFactory(bool fast_bool, Points &points) {
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
 
-  int NUM_POINTS = 500000;
+  int num_points = 0;
   bool fast_bool = true;
-  auto _points = generatePoints(NUM_POINTS, 200);
+
+  if (argc < 5) {
+    std::cout << "Required parameters: \n"
+              << "--num  [Int] number of points to generate\n"
+              << "--fast [Boolean] 'true' for n*log(n) implementation of convex hull generation\n"
+              << "Ex.\n"
+              << " draw_convex_hull_demo --num 10000 --fast true\n";
+
+    return 0;
+  }
+
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i],"--num")==0)
+      num_points = std::atoi(argv[i + 1]);
+    else if (strcmp(argv[i], "--fast") == 0) {
+      if (strcmp(argv[i + 1],"true") == 0)
+        fast_bool = true;
+      else
+        fast_bool = false;
+    }
+  }
+
+  auto _points = generatePoints(num_points, 200);
 
   // Instantiate convex hull calculator
   ConvexHull *convexHullCalculator = convexHullFactory(fast_bool, _points);
