@@ -13,12 +13,18 @@
 Points generatePoints(const int numPoints, const int maxRange) {
   std::random_device rd;
   std::default_random_engine generator(rd());
-  std::uniform_int_distribution<int> distribution(-maxRange, maxRange);
+
+  std::normal_distribution<double> distribution(0.0, (double) maxRange / 2.0);
 
   Points retVal;
-  for (int i = 0; i < numPoints; i++) {
+  int i = 0;
+  while (i < numPoints) {
     auto pt = Vector2D(distribution(generator), distribution(generator));
-    if ((pt.x * pt.x / 30.0) + (pt.y * pt.y / 100.0) < maxRange) retVal.push_back(pt);
+
+    if (pt.length() > (double) maxRange / 4.0 && pt.length() < 3.0 * (double) maxRange / 4.0) {
+      retVal.push_back(pt);
+      i++;
+    }
   }
 
   // remove duplicates
@@ -75,7 +81,7 @@ int main(int argc, char *argv[]) {
     return app.exit(e);
   }
 
-  auto _points = generatePoints(num_points, 200);
+  auto _points = generatePoints(num_points, 250);
 
   // Instantiate convex hull calculator
   ConvexHull *convexHullCalculator = convexHullFactory(fast_bool, _points);
