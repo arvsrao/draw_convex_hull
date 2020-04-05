@@ -6,6 +6,7 @@
 #include <QGraphicsView>
 #include <QtWidgets/QApplication>
 
+#include <include/CLI11.hpp>
 #include <include/SlowConvexHull.h>
 #include <include/FastConvexHull.h>
 
@@ -58,28 +59,20 @@ ConvexHull *convexHullFactory(bool fast_bool, Points &points) {
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
 
+  CLI::App app{"Convell Hull Demo"};
+
   int num_points = 0;
+  app.add_option("--num", num_points, "number of points to generate")->required();
+
   bool fast_bool = true;
+  app.add_option("--fast",
+                 fast_bool,
+                 "'true' for n*log(n) implementation of convex hull generation");
 
-  if (argc < 5) {
-    std::cout << "Required parameters: \n"
-              << "--num  [Int] number of points to generate\n"
-              << "--fast [Boolean] 'true' for n*log(n) implementation of convex hull generation\n"
-              << "Ex.\n"
-              << " draw_convex_hull_demo --num 10000 --fast true\n";
-
-    return 0;
-  }
-
-  for (int i = 1; i < argc; i++) {
-    if (strcmp(argv[i],"--num")==0)
-      num_points = std::atoi(argv[i + 1]);
-    else if (strcmp(argv[i], "--fast") == 0) {
-      if (strcmp(argv[i + 1],"true") == 0)
-        fast_bool = true;
-      else
-        fast_bool = false;
-    }
+  try {
+    app.parse(argc, argv);
+  } catch (const CLI::ParseError &e) {
+    return app.exit(e);
   }
 
   auto _points = generatePoints(num_points, 200);
