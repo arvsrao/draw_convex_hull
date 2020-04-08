@@ -15,7 +15,7 @@ public:
   bool pointInPolygon(Vector2D &point);
 
 private:
-  bool edgeIntersect(Edge &edge, Vector2D &point);
+  int PointInPolygon::edgeIntersect(Vector2D &point, Vector2D &ray_direction, Edge &edge);
 
   virtual ~PointInPolygon();
 };
