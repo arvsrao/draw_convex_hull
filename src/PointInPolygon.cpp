@@ -12,15 +12,31 @@ PointInPolygon::PointInPolygon(PolyLine &curve) : boundary_curve(curve);
  */
  bool PointInPolygon::pointInPolygon(Vector2D &point) {
 
+ 	Vector2D ray_direction = Vector2D(1, 0);
+
+ 	pointInPolygon(point, ray_direction);
+ }
+
+bool PointInPolygon::pointInPolygon(Vector2D &point, Vector2D &ray_direction) {
+
  	const double EPSILON = 0.01;
 
- 	int acc = 0;
+ 	int num = 0;
+ 	int oriented_intersection_num = 0;
 
- 	for (edge : boundary_curve) {
- 	
+ 	for (auto &edge : boundary_curve) {
+
+ 		num = edgeIntersect(point, ray_direction, edge);
+
+ 		if (num==DEGENERATE) return pointInPolygon(point, ray_direction + Vector2D(0, EPSILON))
+
+ 		oriented_intersection_num += num;
+
  	}
 
- }
+ 	return (bool) oriented_intersection_num % 2
+}
+
 
 int PointInPolygon::edgeIntersect(Vector2D &point, Vector2D &ray_direction, Edge &edge) {
 
@@ -36,6 +52,7 @@ int PointInPolygon::edgeIntersect(Vector2D &point, Vector2D &ray_direction, Edge
     double max_slope = std::max(slope_to_start, slope_to_end);
     double min_slope = std::min(slope_to_start, slope_to_end);
 
+    // no intersection
     if ( (slope_of_ray > max_slope) || (slope_of_ray < min_slope) ) return 0;
 
 	// Compute the orientation of the intersection by computing
