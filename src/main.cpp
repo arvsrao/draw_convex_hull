@@ -19,7 +19,7 @@ Points generatePoints(const int numPoints, const int maxRange) {
   Points retVal;
   int i = 0;
   while (i < numPoints) {
-    auto pt = Vector2D(distribution(generator), distribution(generator));
+    auto pt = Vector2D<int>(distribution(generator), distribution(generator));
 
     if (pt.length() > (double) maxRange / 4.0 && pt.length() < 3.0 * (double) maxRange / 4.0) {
       retVal.push_back(pt);

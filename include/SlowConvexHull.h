@@ -20,9 +20,9 @@ class SlowConvexHull : public ConvexHull {
  private:
   Points hull_points;
 
-  inline bool isNegativeFrame(const Vector2D &p, const Vector2D &q);
+  inline bool isNegativeFrame(const Point &p, const Point &q);
 
-  bool allOnRight(const Vector2D &p, const Vector2D &q, const Points &points);
+  bool allOnRight(const Point &p, const Point &q, const Points &points);
 
   Points sortClockwise(std::vector<Edge> &segments);
 

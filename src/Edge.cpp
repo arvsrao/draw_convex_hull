@@ -1,6 +1,6 @@
 #include <include/Edge.h>
 
-Edge::Edge(Vector2D _start, Vector2D _end) : start(_start), end(_end) {}
+Edge::Edge(Point _start, Point _end) : start(_start), end(_end) {}
 
 bool Edge::segmentCompare(Edge &e, Edge &f) {
   auto p = e.end - e.start;

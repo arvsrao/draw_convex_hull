@@ -15,11 +15,11 @@ class FastConvexHull : public ConvexHull {
  private:
   Points hull_points;
 
-  inline bool isNegativeFrame(const Vector2D &p, const Vector2D &q) const;
+  inline bool isNegativeFrame(const Point &p, const Point &q) const;
 
   Points _convexHull(const Points &points);
 
-  inline bool rightTurn(const Vector2D &start, const Vector2D &middle, const Vector2D &end) const;
+  inline bool rightTurn(const Point &start, const Point &middle, const Point &end) const;
 
 };
 

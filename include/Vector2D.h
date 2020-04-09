@@ -12,13 +12,15 @@ class Vector2D {
 
   double arccos() const;
 
-  bool operator==(const Vector2D<T> &rhs) const;
+  bool operator==(const Vector2D &rhs) const;
 
-  bool operator!=(const Vector2D<T> &rhs) const;
+  bool operator!=(const Vector2D &rhs) const;
 
-  Vector2D<T> operator-(const Vector2D<T> &rhs) const;
+  Vector2D operator-(const Vector2D &rhs) const;
 
-  static bool compareVector2D(Vector2D<T> &a, Vector2D<T> &b);
+  Vector2D operator+(const Vector2D &rhs) const;
+
+  static bool compareVector2D(Vector2D &a, Vector2D &b);
 
   void print();
 

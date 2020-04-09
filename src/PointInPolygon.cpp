@@ -13,14 +13,12 @@ PointInPolygon::PointInPolygon(PolyLine &curve) : boundary_curve(curve);
  * relative to {{point}}.
  *
  */
- bool PointInPolygon::pointInPolygon(Vector2D &point) {
+ bool PointInPolygon::pointInPolygon(Point &point) {
 
- 	RayType ray_direction = Vector2D<double>(1.0, 0.0);
-
- 	pointInPolygon(point, ray_direction);
+ 	pointInPolygon(point, Vector2D<double>(1.0, 0.0));
  }
 
-bool PointInPolygon::pointInPolygon(Vector2D &point, RayType &ray_direction) {
+bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
 
  	const double EPSILON = 0.01;
 
@@ -34,14 +32,13 @@ bool PointInPolygon::pointInPolygon(Vector2D &point, RayType &ray_direction) {
  		if (num==DEGENERATE) return pointInPolygon(point, ray_direction + Vector2D<double>(0.0, EPSILON))
 
  		oriented_intersection_num += num;
-
  	}
 
  	return (bool) oriented_intersection_num % 2
 }
 
 
-int PointInPolygon::edgeIntersect(Vector2D &point, RayType &ray_direction, Edge &edge) {
+int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &edge) {
 
 	// Imagine an infinite length ray from {{point}} in direction (1, EPSILON), 
 	//    \beta(t) = t * <1, EPSILON> + p

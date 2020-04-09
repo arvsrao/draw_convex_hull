@@ -3,10 +3,12 @@
 
 #include <include/Vector2D.h>
 
-struct Edge {
-  Vector2D start, end;
+using Point  = Vector2D<int>;
 
-  Edge(Vector2D _start, Vector2D _end);
+struct Edge {
+  Point start, end;
+
+  Edge(Point _start, Point _end);
 
   static bool segmentCompare(Edge &e, Edge &f);
 

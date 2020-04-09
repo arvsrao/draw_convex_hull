@@ -21,11 +21,11 @@ Points &SlowConvexHull::getConvexHull() {
 *  (q.x,q.y) * (p.y, -p.x) = q.x * p.y - q.y * p.x > 0
 *
 */
-inline bool SlowConvexHull::isNegativeFrame(const Vector2D &p, const Vector2D &q) {
+inline bool SlowConvexHull::isNegativeFrame(const Point &p, const Point &q) {
   return (p.x * q.y - q.x * p.y) < 0;
 }
 
-bool SlowConvexHull::allOnRight(const Vector2D &p, const Vector2D &q, const Points &points) {
+bool SlowConvexHull::allOnRight(const Point &p, const Point &q, const Points &points) {
   for (size_t i = 0; i < points.size(); i++) {
     auto v = points[i];
     if (q == v || p == v) continue;

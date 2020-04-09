@@ -12,12 +12,12 @@ public:
 
   PointInPolygon(PolyLine &curve);
 
-  bool pointInPolygon(Vector2D &point);
+  bool pointInPolygon(Point &point);
 
 private:
   int PointInPolygon::edgeIntersect(Vector2D &point, Vector2D &ray_direction, Edge &edge);
 
-  bool pointInPolygon(Vector2D &point, Vector2D &ray_direction);
+  bool pointInPolygon(Point &point, Vector2D<double> &ray_direction);
 
   virtual ~PointInPolygon();
 };
