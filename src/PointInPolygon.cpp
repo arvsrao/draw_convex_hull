@@ -3,6 +3,9 @@
 #include <algorithm>    // std::max
 #include <include/PointInPolygon.h>
 
+// a convenient class internal type 
+using RayType = Vector2D<double>;
+
 PointInPolygon::PointInPolygon(PolyLine &curve) : boundary_curve(curve); 
 
 /*
@@ -12,12 +15,12 @@ PointInPolygon::PointInPolygon(PolyLine &curve) : boundary_curve(curve);
  */
  bool PointInPolygon::pointInPolygon(Vector2D &point) {
 
- 	Vector2D ray_direction = Vector2D(1, 0);
+ 	RayType ray_direction = Vector2D<double>(1.0, 0.0);
 
  	pointInPolygon(point, ray_direction);
  }
 
-bool PointInPolygon::pointInPolygon(Vector2D &point, Vector2D &ray_direction) {
+bool PointInPolygon::pointInPolygon(Vector2D &point, RayType &ray_direction) {
 
  	const double EPSILON = 0.01;
 
@@ -28,7 +31,7 @@ bool PointInPolygon::pointInPolygon(Vector2D &point, Vector2D &ray_direction) {
 
  		num = edgeIntersect(point, ray_direction, edge);
 
- 		if (num==DEGENERATE) return pointInPolygon(point, ray_direction + Vector2D(0, EPSILON))
+ 		if (num==DEGENERATE) return pointInPolygon(point, ray_direction + Vector2D<double>(0.0, EPSILON))
 
  		oriented_intersection_num += num;
 
@@ -38,7 +41,7 @@ bool PointInPolygon::pointInPolygon(Vector2D &point, Vector2D &ray_direction) {
 }
 
 
-int PointInPolygon::edgeIntersect(Vector2D &point, Vector2D &ray_direction, Edge &edge) {
+int PointInPolygon::edgeIntersect(Vector2D &point, RayType &ray_direction, Edge &edge) {
 
 	// Imagine an infinite length ray from {{point}} in direction (1, EPSILON), 
 	//    \beta(t) = t * <1, EPSILON> + p
@@ -47,7 +50,7 @@ int PointInPolygon::edgeIntersect(Vector2D &point, Vector2D &ray_direction, Edge
 	// ray
 	double slope_to_end   = (double)( edge.end.y - point.y ) / (double)( edge.end.x - point.x );
 	double slope_to_start = (double)( edge.start.y - point.y ) / (double)( edge.start.x - point.x );
-    double slope_of_ray   = (double) ray_direction.y / (double) ray_direction.x;
+    double slope_of_ray   = ray_direction.y / ray_direction.x;
 
     double max_slope = std::max(slope_to_start, slope_to_end);
     double min_slope = std::min(slope_to_start, slope_to_end);
@@ -61,7 +64,8 @@ int PointInPolygon::edgeIntersect(Vector2D &point, Vector2D &ray_direction, Edge
 	//            [ ray_direction.x (edge.end.x - edge.start.x) ]
 	//    det =   [ ray_direction.y (edge.end.y - edge.start.y) ] 
 	//
-	double det = ray_direction.x * (edge.end.y - edge.start.y) - ray_direction.y * (edge.end.x - edge.start.x);
+	double det = ray_direction.x * (double) (edge.end.y - edge.start.y) 
+	               - ray_direction.y * (double) (edge.end.x - edge.start.x);
 
 	if (det > 0 ) return +1;
 	if (det < 0 ) return -1;
