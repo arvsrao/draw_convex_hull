@@ -7,14 +7,14 @@ using PolyLine = std::vector<Edge>;
 
 class PointInPolygon {
 
-public:
+ public:
   PolyLine boundary_curve;
 
   PointInPolygon(PolyLine &curve);
 
   bool pointInPolygon(Point &point);
 
-private:
+ private:
   int PointInPolygon::edgeIntersect(Vector2D &point, Vector2D &ray_direction, Edge &edge);
 
   bool pointInPolygon(Point &point, Vector2D<double> &ray_direction);

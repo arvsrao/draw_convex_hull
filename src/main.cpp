@@ -7,21 +7,22 @@
 #include <QtWidgets/QApplication>
 
 #include <include/CLI11.hpp>
+#include <include/Vector2D.h>
 #include <include/SlowConvexHull.h>
 #include <include/FastConvexHull.h>
 
-Points generatePoints(const int numPoints, const int maxRange) {
+Points generatePoints(const int numPoints, const double maxRange) {
   std::random_device rd;
   std::default_random_engine generator(rd());
 
-  std::normal_distribution<double> distribution(0.0, (double) maxRange / 2.0);
+  std::normal_distribution<double> distribution(0.0, maxRange / 2.0);
 
   Points retVal;
   int i = 0;
   while (i < numPoints) {
     auto pt = Vector2D<int>(distribution(generator), distribution(generator));
 
-    if (pt.length() > (double) maxRange / 4.0 && pt.length() < 3.0 * (double) maxRange / 4.0) {
+    if (pt.length() > maxRange / 4.0 && pt.length() < 3.0 * maxRange / 4.0) {
       retVal.push_back(pt);
       i++;
     }
@@ -52,10 +53,6 @@ void display(Points &_points, Points &hull, QGraphicsScene *scene) {
                    QPen(Qt::blue, 2));
 }
 
-void printPath(Points points) {
-  for (unsigned long i = 0; i < points.size(); i++) points[i].print();
-}
-
 ConvexHull *convexHullFactory(bool fast_bool, Points &points) {
   if (fast_bool)
     return new FastConvexHull(points);
@@ -81,7 +78,7 @@ int main(int argc, char *argv[]) {
     return app.exit(e);
   }
 
-  auto _points = generatePoints(num_points, 250);
+  auto _points = generatePoints(num_points, 250.0);
 
   // Instantiate convex hull calculator
   ConvexHull *convexHullCalculator = convexHullFactory(fast_bool, _points);
