@@ -3,10 +3,10 @@
 #include <algorithm>    // std::max
 #include <include/PointInPolygon.h>
 
-// a convenient class internal type 
+// a convenient class internal type
 using RayType = Vector2D<double>;
 
-PointInPolygon::PointInPolygon(PolyLine &curve) : boundary_curve(curve) {}
+PointInPolygon::PointInPolygon(const PolyLine &curve) : boundary_curve(curve) {}
 
 /*
  * Compute oriented intersection number \mod 2 
@@ -14,7 +14,8 @@ PointInPolygon::PointInPolygon(PolyLine &curve) : boundary_curve(curve) {}
  *
  */
 bool PointInPolygon::pointInPolygon(Point &point) {
-  pointInPolygon(point, Vector2D<double>(1.0, 0.0));
+  RayType horizontal_ray = RayType(1.0, 0.0);
+  return pointInPolygon(point, horizontal_ray);
 }
 
 bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
@@ -28,7 +29,11 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
 
     num = edgeIntersect(point, ray_direction, edge);
 
-    if (num == DEGENERATE) return pointInPolygon(point, ray_direction + Vector2D<double>(0.0, EPSILON));
+    // Handle degenerate intersection by perturbing the ray by some epsilon.
+    if (num == DEGENERATE) {
+      RayType perturbed_direction = ray_direction + RayType(0.0, EPSILON);
+      return pointInPolygon(point, perturbed_direction);
+    }
 
     oriented_intersection_num += num;
   }
@@ -36,22 +41,42 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
   return (bool) oriented_intersection_num % 2;
 }
 
+int determinant(const RayType &p, const RayType &q) {
+  double retVal = (p.x * q.y - q.x * p.y);
+
+  if (retVal > 0) return +1;
+  if (retVal < 0) return -1;
+  return 0;
+}
+
+double angleBetween(const RayType &p, const RayType &q) {
+  return std::acos(p.dot(q) / p.length() * q.length());
+}
+
 int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &edge) {
 
-  // Imagine an infinite length ray from {{point}} in direction (1, EPSILON),
-  //    \beta(t) = t * <1, EPSILON> + p
-  // Then determine if the ray \beta(t) intersects {{edge}} by
-  // checking if the endpoints lie on either side of \beta, the
-  // ray
-  double slope_to_end = (double) (edge.end.y - point.y) / (double) (edge.end.x - point.x);
-  double slope_to_start = (double) (edge.start.y - point.y) / (double) (edge.start.x - point.x);
-  double slope_of_ray = ray_direction.y / ray_direction.x;
+  /** Imagine an infinite length ray from point in direction (1, EPSILON),
+  //    \beta(t) = t * <1, EPSILON> + point
+  // Then determine if the ray \beta(t) intersects @param edge by
+  // checking if the ray lies in between vectors from point to edge.end
+  // and the vector from point to edge.start.
+  **/
 
-  double max_slope = std::max(slope_to_start, slope_to_end);
-  double min_slope = std::min(slope_to_start, slope_to_end);
+  // cast Vector2D<int> to Vector2D<double)
+  RayType end_vec = RayType(edge.end - point);
+  RayType start_vec = RayType(edge.start - point);
 
-  // no intersection
-  if ((slope_of_ray > max_slope) || (slope_of_ray < min_slope)) return 0;
+  // Edges are considered half open interval like [start, end), otherwise
+  // intersections at segment endpoints will be counted twice.
+  int ray_placement = determinant(ray_direction, end_vec);
+  if (ray_placement == 0 && end_vec.dot(ray_direction) > 0) return 0; // ray intersects {{edge.end}}
+
+  ray_placement += determinant(ray_direction, start_vec);
+  if (ray_placement < -1 || ray_placement > 1) return 0;
+
+  // when theta == PI @param point lies on the edge.
+  double theta = angleBetween(end_vec, ray_direction) + angleBetween(start_vec, ray_direction);
+  if (theta > PI) return 0;
 
   // Compute the orientation of the intersection by computing
   // the determinate of {{ray_direction}} and oriented edge as a vector.
@@ -66,7 +91,8 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   if (det < 0) return -1;
 
   // what's left is the degenerate case, when the ray \beta
-  // contains the segment {{edge}}. Handle by perturbing
-  // \beta by some epsilon.
+  // contains the segment {{edge}}.
   return DEGENERATE;
 }
+
+PointInPolygon::~PointInPolygon() {}

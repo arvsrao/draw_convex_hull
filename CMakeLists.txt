@@ -17,3 +17,5 @@ include_directories(include)
 add_executable(draw_convex_hull_demo src/main.cpp src/Edge.cpp src/FastConvexHull.cpp src/SlowConvexHull.cpp)
 
 target_link_libraries(draw_convex_hull_demo Qt5::Widgets)
+
+add_subdirectory(test)
