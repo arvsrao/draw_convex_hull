@@ -8,6 +8,12 @@ using RayType = Vector2D<double>;
 
 PointInPolygon::PointInPolygon(const PolyLine &curve) : boundary_curve(curve) {}
 
+PointInPolygon::PointInPolygon(const std::vector<Point> &curve) {
+  for (int i = 0; i < curve.size(); i++) {
+    boundary_curve.push_back(Edge(curve[i], curve[(i + 1) % curve.size()]));
+  }
+}
+
 /*
  * Compute oriented intersection number \mod 2 
  * relative to {{point}}.
@@ -20,7 +26,7 @@ bool PointInPolygon::pointInPolygon(Point &point) {
 
 bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
 
-  const double EPSILON = 0.01;
+  const double EPSILON = 0.1;
 
   int num = 0;
   int oriented_intersection_num = 0;
@@ -49,10 +55,6 @@ int determinant(const RayType &p, const RayType &q) {
   return 0;
 }
 
-double angleBetween(const RayType &p, const RayType &q) {
-  return std::acos(p.dot(q) / p.length() * q.length());
-}
-
 int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &edge) {
 
   /** Imagine an infinite length ray from point in direction (1, EPSILON),
@@ -70,6 +72,10 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   // intersections at segment endpoints will be counted twice.
   int ray_placement = determinant(ray_direction, end_vec);
   if (ray_placement == 0 && end_vec.dot(ray_direction) > 0) return 0; // ray intersects {{edge.end}}
+
+  // ray intersects {{edge.start}} which means determining if the query
+  // point is inside or outside the shape is not possible.
+  if (determinant(ray_direction, start_vec) == 0 && start_vec.dot(ray_direction) > 0) return DEGENERATE;
 
   ray_placement += determinant(ray_direction, start_vec);
   if (ray_placement < -1 || ray_placement > 1) return 0;

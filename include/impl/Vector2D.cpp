@@ -8,23 +8,23 @@ const double PI = 3.14159265358979323846;
 template<typename T>
 Vector2D<T>::Vector2D() : x(0), y(0) {}
 
-template <typename T>
+template<typename T>
 Vector2D<T>::Vector2D(const Vector2D<int> &other) {
   x = (T) other.x;
   y = (T) other.y;
 }
 
-template <typename T>
+/*template <typename T>
 Vector2D<T>::Vector2D(const Vector2D<int> &&other) {
   x = (T) other.x;
   y = (T) other.y;
 }
-
+*/
 template<typename T>
 Vector2D<T>::Vector2D(T _x, T _y) : x(_x), y(_y) {}
 
-template <typename T>
-T Vector2D<T>::dot(const Vector2D &other) const {
+template<typename T>
+T Vector2D<T>::dot(const Vector2D<T> &other) const {
   return x * other.x + y * other.y;
 }
 
@@ -42,7 +42,7 @@ double Vector2D<T>::arccos() const {
 }
 
 template<typename T>
-bool Vector2D<T>::compareVector2D(Vector2D <T> &a, Vector2D <T> &b) {
+bool Vector2D<T>::compareVector2D(const Vector2D <T> &a, const Vector2D <T> &b) {
   return (a.x == b.x) ? a.y < b.y : a.x < b.x;
 }
 

@@ -54,7 +54,7 @@ Points FastConvexHull::_convexHull(const Points &points) {
 }
 
 FastConvexHull::FastConvexHull(Points &points) {
-  std::sort(points.begin(), points.end(), Vector2D<int>::compareVector2D);
+  std::sort(points.begin(), points.end(), Point::compareVector2D);
   hull_points = _convexHull(points);
 
   std::sort(points.begin(),

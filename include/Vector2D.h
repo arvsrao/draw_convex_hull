@@ -8,7 +8,8 @@ class Vector2D {
 
   Vector2D();
   Vector2D(const Vector2D<int> &other);
-  Vector2D(const Vector2D<int> &&other);
+  //Vector2D(const Vector2D<int> &&other);
+
   Vector2D(T _x, T _y);
 
   double length() const;
@@ -25,7 +26,7 @@ class Vector2D {
 
   Vector2D operator+(const Vector2D &rhs) const;
 
-  static bool compareVector2D(Vector2D &a, Vector2D &b);
+  static bool compareVector2D(const Vector2D &a, const Vector2D &b);
 
   void print();
 

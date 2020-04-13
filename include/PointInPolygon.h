@@ -4,6 +4,8 @@
 #include "Edge.h"
 #include <vector>
 
+// convenient internal type aliases
+using RayType = Vector2D<double>;
 using PolyLine = std::vector<Edge>;
 
 class PointInPolygon {
@@ -13,14 +15,21 @@ class PointInPolygon {
 
   PointInPolygon(const PolyLine &curve);
 
+  PointInPolygon(const std::vector<Point> &curve);
+
   bool pointInPolygon(Point &point);
 
   virtual ~PointInPolygon();
 
  private:
-  int edgeIntersect(Point &point, Vector2D<double> &ray_direction, Edge &edge);
 
-  bool pointInPolygon(Point &point, Vector2D<double> &ray_direction);
+  double angleBetween(const RayType &p, const RayType &q) {
+    return std::acos(p.dot(q) / (p.length() * q.length()));
+  }
+
+  int edgeIntersect(Point &point, RayType &ray_direction, Edge &edge);
+
+  bool pointInPolygon(Point &point, RayType &ray_direction);
 };
 
 #endif //DRAW_CONVEX_HULL_POINT_IN_POLYGON_H
