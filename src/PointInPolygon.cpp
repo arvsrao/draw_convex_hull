@@ -29,7 +29,7 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
   const double EPSILON = 0.1;
 
   int num = 0;
-  int oriented_intersection_num = 0;
+  int intersection_num = 0;
 
   for (auto &edge : boundary_curve) {
 
@@ -41,10 +41,10 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
       return pointInPolygon(point, perturbed_direction);
     }
 
-    oriented_intersection_num += num;
+    intersection_num += num;
   }
 
-  return (bool) oriented_intersection_num % 2;
+  return (bool) (intersection_num % 2);
 }
 
 int determinant(const RayType &p, const RayType &q) {
@@ -73,32 +73,26 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   int ray_placement = determinant(ray_direction, end_vec);
   if (ray_placement == 0 && end_vec.dot(ray_direction) > 0) return 0; // ray intersects {{edge.end}}
 
-  // ray intersects {{edge.start}} which means determining if the query
-  // point is inside or outside the shape is not possible.
+  // ray intersects {{edge.start}} in a non-generic way;
+  // which means determining intersection is inconclusive when querying
+  // in the direction of ray_direction. Additionally, the degenerate case
+  // of whole edge intersection is also handled here, because the whole edge
+  // includes {{edge.start}}.
   if (determinant(ray_direction, start_vec) == 0 && start_vec.dot(ray_direction) > 0) return DEGENERATE;
 
   ray_placement += determinant(ray_direction, start_vec);
   if (ray_placement < -1 || ray_placement > 1) return 0;
 
-  // when theta == PI @param point lies on the edge.
+  // If ray_direction in the sector formed by start_vec && end_vec then
+  // the the ray from query point crosses {{edge}}. When theta == PI the
+  // query point lies on the edge and is considered inside of the shape.
+  // TODO: consider implementing Edelsbrunner approach. Instead of the more
+  // TODO: geometric view taken here, he computes the orientation of the three
+  // TODO: vectors using a determinant.
   double theta = angleBetween(end_vec, ray_direction) + angleBetween(start_vec, ray_direction);
   if (theta > PI) return 0;
 
-  // Compute the orientation of the intersection by computing
-  // the determinate of {{ray_direction}} and oriented edge as a vector.
-  //
-  //            [ ray_direction.x (edge.end.x - edge.start.x) ]
-  //    det =   [ ray_direction.y (edge.end.y - edge.start.y) ]
-  //
-  double det = ray_direction.x * (double) (edge.end.y - edge.start.y)
-      - ray_direction.y * (double) (edge.end.x - edge.start.x);
-
-  if (det > 0) return +1;
-  if (det < 0) return -1;
-
-  // what's left is the degenerate case, when the ray \beta
-  // contains the segment {{edge}}.
-  return DEGENERATE;
+  return 1;
 }
 
 PointInPolygon::~PointInPolygon() {}
