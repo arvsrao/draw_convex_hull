@@ -17,7 +17,6 @@ PointInPolygon::PointInPolygon(const std::vector<Point> &curve) {
 /*
  * Compute oriented intersection number \mod 2 
  * relative to {{point}}.
- *
  */
 bool PointInPolygon::pointInPolygon(Point &point) {
   RayType horizontal_ray = RayType(1.0, 0.0);
@@ -55,6 +54,22 @@ int determinant(const RayType &p, const RayType &q) {
   return 0;
 }
 
+bool isRayInSector(RayType &a, RayType &b, RayType &ray) {
+
+  // compute normal of start_vec && end_vec.
+  // correct normal to always point into positive half of R^3
+  //
+  //      [ i    j    k ]
+  //  det [ a.x  a.y  1 ]
+  //      [ b.x  b.y  1 ]	
+  double eta_x = a.y - b.y;	
+  double eta_y = b.x - a.x;	
+  double eta_z = std::abs(a.x * b.y - b.x * a.y);	
+
+  // eta * ray
+  return eta_x * ray.x + eta_y * ray.y + eta_z <= 0 
+}
+
 int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &edge) {
 
   /** Imagine an infinite length ray from point in direction (1, EPSILON),
@@ -81,18 +96,15 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   if (determinant(ray_direction, start_vec) == 0 && start_vec.dot(ray_direction) > 0) return DEGENERATE;
 
   ray_placement += determinant(ray_direction, start_vec);
+
+  // check if horizontal line that goes through ray_direction crosses the edge.
+  // 
   if (ray_placement < -1 || ray_placement > 1) return 0;
 
-  // If ray_direction in the sector formed by start_vec && end_vec then
-  // the the ray from query point crosses {{edge}}. When theta == PI the
-  // query point lies on the edge and is considered inside of the shape.
-  // TODO: consider implementing Edelsbrunner approach. Instead of the more
-  // TODO: geometric view taken here, he computes the orientation of the three
-  // TODO: vectors using a determinant.
-  double theta = angleBetween(end_vec, ray_direction) + angleBetween(start_vec, ray_direction);
-  if (theta > PI) return 0;
-
-  return 1;
+  // embed start_vec && end_vec && ray_direction into z=1
+  // plane of R^3. compute normal of start_vec && end_vec.
+  // correct normal to always point into positive half of R^3
+  return (int) isRayInSector(start_vec, end_vec, ray_direction);
 }
 
 PointInPolygon::~PointInPolygon() {}
