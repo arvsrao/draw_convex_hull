@@ -16,6 +16,8 @@ class Vector2D {
 
   double arccos() const;
 
+  void normalize();
+
   T dot(const Vector2D &other) const;
 
   bool operator==(const Vector2D &rhs) const;

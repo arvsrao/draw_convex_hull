@@ -29,6 +29,7 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
 
   int num = 0;
   int intersection_num = 0;
+  ray_direction.normalize();  // project onto S^1
 
   for (auto &edge : boundary_curve) {
 
@@ -83,22 +84,24 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   RayType end_vec = RayType(edge.end - point);
   RayType start_vec = RayType(edge.start - point);
 
+  // project everything onto S^1
+  end_vec.normalize();
+  start_vec.normalize();
+
   // Edges are considered half open interval like [start, end), otherwise
   // intersections at segment endpoints will be counted twice.
-  int ray_placement = determinant(ray_direction, end_vec);
-  if (ray_placement == 0 && end_vec.dot(ray_direction) > 0) return 0; // ray intersects {{edge.end}}
+  if (end_vec.dot(ray_direction) == 1.0) return 0; // ray intersects {{edge.end}}
 
   // ray intersects {{edge.start}} in a non-generic way;
   // which means determining intersection is inconclusive when querying
   // in the direction of ray_direction. Additionally, the degenerate case
   // of whole edge intersection is also handled here, because the whole edge
   // includes {{edge.start}}.
-  if (determinant(ray_direction, start_vec) == 0 && start_vec.dot(ray_direction) > 0) return DEGENERATE;
-
-  ray_placement += determinant(ray_direction, start_vec);
+  if (start_vec.dot(ray_direction) == 1.0) return DEGENERATE;
 
   // check if horizontal line that goes through ray_direction crosses the edge.
-  // 
+  int ray_placement = determinant(ray_direction, end_vec);
+  ray_placement += determinant(ray_direction, start_vec);
   if (ray_placement < -1 || ray_placement > 1) return 0;
 
   // embed start_vec && end_vec && ray_direction into z=1

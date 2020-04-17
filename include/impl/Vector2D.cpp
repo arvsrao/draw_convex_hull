@@ -42,6 +42,13 @@ double Vector2D<T>::arccos() const {
 }
 
 template<typename T>
+void Vector2D<T>::normalize() {
+  double _length = this->length();
+  x = (T)((double) x / _length);
+  y = (T)((double) y / _length)
+}
+
+template<typename T>
 bool Vector2D<T>::compareVector2D(const Vector2D <T> &a, const Vector2D <T> &b) {
   return (a.x == b.x) ? a.y < b.y : a.x < b.x;
 }
