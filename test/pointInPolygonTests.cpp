@@ -2,6 +2,7 @@
 #include <include/PointInPolygon.h>
 
 using Point = Vector2D<int>;
+using RayType = Vector2D<double>;
 
 TEST(PointInPolygon, AngleMeasureTest) {
   Point ray = Point(1, 0);
@@ -14,20 +15,19 @@ TEST(PointInPolygon, AngleMeasureTest) {
   double num = -0.99014577103682988;
   std::cout << "acos(-0.99014577103682988) = " << std::acos(num);
 
-  Vector2D<double> ra = Vector2D<double>(1.0, 0.1);
-  Vector2D<double> vec = Vector2D<double>(-98.0, -24.0);
+  RayType ra = RayType(1.0, 0.1);
+  RayType vec = RayType(-98.0, -24.0);
   double val = ra.dot(vec) / ra.length() / vec.length();\
-    std::cout << "\n\n";
+  std::cout << "\n\n";
 
   std::cout << "val is " << val << "\n";
   std::cout << "acos(val) = " << std::acos(val);
-
   std::cout << "\n\n";
 
   std::vector<Point> polyLine = {Point(-4, -4), Point(0, 4), Point(4, 0)};
   PointInPolygon pipCalc = PointInPolygon(polyLine);
 
-  std::cout << pipCalc.angleBetween(ra, vec) << "\n";
+  //std::cout << pipCalc.angleBetween(ra, vec) << "\n";
 }
 
 TEST(PointInPolygon, TriangleTest) {
@@ -40,6 +40,16 @@ TEST(PointInPolygon, TriangleTest) {
 
   ASSERT_FALSE(pipCalc.pointInPolygon(query_point_outside));
   ASSERT_TRUE(pipCalc.pointInPolygon(query_point_inside));
+}
+
+TEST(PointInPolygon, isRayInSectorTest) {
+
+  // test isRayInSector function
+  RayType a = RayType(-0.70046, -0.71368);
+  RayType b = RayType(-0.406138, 0.913811);
+  RayType ray = RayType(1.0, 0.0);
+
+  ASSERT_FALSE(PointInPolygon::isRayInSector(a, b, ray));
 }
 
 TEST(PointInPolygon, PointsNotInShape) {

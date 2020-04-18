@@ -47,28 +47,28 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
   return (bool) (intersection_num % 2);
 }
 
-int determinant(const RayType &p, const RayType &q) {
-  double retVal = (p.x * q.y - q.x * p.y);
-
-  if (retVal > 0) return +1;
-  if (retVal < 0) return -1;
-  return 0;
+double det2D(const RayType &p, const RayType &q) {
+  return p.x * q.y - q.x * p.y;
 }
 
-bool isRayInSector(RayType &a, RayType &b, RayType &ray) {
+bool PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
 
   // compute normal of start_vec && end_vec.
-  // correct normal to always point into positive half of R^3
   //
   //      [ i    j    k ]
   //  det [ a.x  a.y  1 ]
   //      [ b.x  b.y  1 ]	
-  double eta_x = a.y - b.y;	
-  double eta_y = b.x - a.x;	
-  double eta_z = std::abs(a.x * b.y - b.x * a.y);	
+  double eta_x = a.y - b.y;
+  double eta_y = b.x - a.x;
+  double eta_z = a.x * b.y - b.x * a.y;
 
-  // eta * ray
-  return eta_x * ray.x + eta_y * ray.y + eta_z <= 0 
+  double comparable = eta_x * ray.x + eta_y * ray.y + eta_z;
+
+  // condition is dependent on whether eta points into +z/-z half of R^3.
+  // Equality implies query point lies on the line between a and b. In the
+  // context of edgeIntersect where this function is called, equality means
+  // the query point lies on the given edge.
+  return (eta_z > 0) ? comparable <= 0 : comparable >= 0;
 }
 
 int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &edge) {
@@ -80,7 +80,7 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   // and the vector from point to edge.start.
   **/
 
-  // cast Vector2D<int> to Vector2D<double)
+  // cast Vector2D<int> to Vector2D<double>
   RayType end_vec = RayType(edge.end - point);
   RayType start_vec = RayType(edge.start - point);
 
@@ -88,9 +88,10 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   end_vec.normalize();
   start_vec.normalize();
 
-  // Edges are considered half open interval like [start, end), otherwise
-  // intersections at segment endpoints will be counted twice.
-  if (end_vec.dot(ray_direction) == 1.0) return 0; // ray intersects {{edge.end}}
+  // Edges are considered half open intervals like [start, end), otherwise
+  // intersections at segment endpoints will be counted twice. Therefore,
+  // if ray_direction intersects {{edge.end}} => no crossing.
+  if (end_vec.dot(ray_direction) == 1.0) return 0;
 
   // ray intersects {{edge.start}} in a non-generic way;
   // which means determining intersection is inconclusive when querying
@@ -100,13 +101,11 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   if (start_vec.dot(ray_direction) == 1.0) return DEGENERATE;
 
   // check if horizontal line that goes through ray_direction crosses the edge.
-  int ray_placement = determinant(ray_direction, end_vec);
-  ray_placement += determinant(ray_direction, start_vec);
-  if (ray_placement < -1 || ray_placement > 1) return 0;
+  if (det2D(ray_direction, end_vec) < 0 == det2D(ray_direction, start_vec) < 0) return 0;
 
-  // embed start_vec && end_vec && ray_direction into z=1
-  // plane of R^3. compute normal of start_vec && end_vec.
-  // correct normal to always point into positive half of R^3
+  // embed start_vec && end_vec && ray_direction into S^1 in the Z=1
+  // plane of R^3. Compute the normal of embedded start_vec && end_vec.
+  // Then compare the normal to ray_direction.
   return (int) isRayInSector(start_vec, end_vec, ray_direction);
 }
 
