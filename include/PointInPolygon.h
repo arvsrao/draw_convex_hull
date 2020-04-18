@@ -19,6 +19,8 @@ class PointInPolygon {
 
   bool pointInPolygon(Point &point);
 
+  static bool isRayInSector(RayType &a, RayType &b, RayType &ray);
+
   virtual ~PointInPolygon();
 
  private:

@@ -17,7 +17,6 @@ PointInPolygon::PointInPolygon(const std::vector<Point> &curve) {
 /*
  * Compute oriented intersection number \mod 2 
  * relative to {{point}}.
- *
  */
 bool PointInPolygon::pointInPolygon(Point &point) {
   RayType horizontal_ray = RayType(1.0, 0.0);
@@ -30,6 +29,7 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
 
   int num = 0;
   int intersection_num = 0;
+  ray_direction.normalize();  // project onto S^1
 
   for (auto &edge : boundary_curve) {
 
@@ -47,12 +47,28 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
   return (bool) (intersection_num % 2);
 }
 
-int determinant(const RayType &p, const RayType &q) {
-  double retVal = (p.x * q.y - q.x * p.y);
+double det2D(const RayType &p, const RayType &q) {
+  return p.x * q.y - q.x * p.y;
+}
 
-  if (retVal > 0) return +1;
-  if (retVal < 0) return -1;
-  return 0;
+bool PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
+
+  // compute normal of start_vec && end_vec.
+  //
+  //      [ i    j    k ]
+  //  det [ a.x  a.y  1 ]
+  //      [ b.x  b.y  1 ]	
+  double eta_x = a.y - b.y;
+  double eta_y = b.x - a.x;
+  double eta_z = a.x * b.y - b.x * a.y;
+
+  double comparable = eta_x * ray.x + eta_y * ray.y + eta_z;
+
+  // condition is dependent on whether eta points into +z/-z half of R^3.
+  // Equality implies query point lies on the line between a and b. In the
+  // context of edgeIntersect where this function is called, equality means
+  // the query point lies on the given edge.
+  return (eta_z > 0) ? comparable <= 0 : comparable >= 0;
 }
 
 int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &edge) {
@@ -64,35 +80,33 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   // and the vector from point to edge.start.
   **/
 
-  // cast Vector2D<int> to Vector2D<double)
+  // cast Vector2D<int> to Vector2D<double>
   RayType end_vec = RayType(edge.end - point);
   RayType start_vec = RayType(edge.start - point);
 
-  // Edges are considered half open interval like [start, end), otherwise
-  // intersections at segment endpoints will be counted twice.
-  int ray_placement = determinant(ray_direction, end_vec);
-  if (ray_placement == 0 && end_vec.dot(ray_direction) > 0) return 0; // ray intersects {{edge.end}}
+  // project everything onto S^1
+  end_vec.normalize();
+  start_vec.normalize();
+
+  // Edges are considered half open intervals like [start, end), otherwise
+  // intersections at segment endpoints will be counted twice. Therefore,
+  // if ray_direction intersects {{edge.end}} => no crossing.
+  if (end_vec.dot(ray_direction) == 1.0) return 0;
 
   // ray intersects {{edge.start}} in a non-generic way;
   // which means determining intersection is inconclusive when querying
   // in the direction of ray_direction. Additionally, the degenerate case
   // of whole edge intersection is also handled here, because the whole edge
   // includes {{edge.start}}.
-  if (determinant(ray_direction, start_vec) == 0 && start_vec.dot(ray_direction) > 0) return DEGENERATE;
+  if (start_vec.dot(ray_direction) == 1.0) return DEGENERATE;
 
-  ray_placement += determinant(ray_direction, start_vec);
-  if (ray_placement < -1 || ray_placement > 1) return 0;
+  // check if horizontal line that goes through ray_direction crosses the edge.
+  if (det2D(ray_direction, end_vec) < 0 == det2D(ray_direction, start_vec) < 0) return 0;
 
-  // If ray_direction in the sector formed by start_vec && end_vec then
-  // the the ray from query point crosses {{edge}}. When theta == PI the
-  // query point lies on the edge and is considered inside of the shape.
-  // TODO: consider implementing Edelsbrunner approach. Instead of the more
-  // TODO: geometric view taken here, he computes the orientation of the three
-  // TODO: vectors using a determinant.
-  double theta = angleBetween(end_vec, ray_direction) + angleBetween(start_vec, ray_direction);
-  if (theta > PI) return 0;
-
-  return 1;
+  // embed start_vec && end_vec && ray_direction into S^1 in the Z=1
+  // plane of R^3. Compute the normal of embedded start_vec && end_vec.
+  // Then compare the normal to ray_direction.
+  return (int) isRayInSector(start_vec, end_vec, ray_direction);
 }
 
 PointInPolygon::~PointInPolygon() {}

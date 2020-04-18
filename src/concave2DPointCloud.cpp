@@ -86,7 +86,7 @@ void display(Points &_points, Points &hull, QGraphicsScene *scene) {
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
 
-  const int num_points = 2500;
+  const int num_points = 4500;
 
   auto _points = generatePoints(num_points, 200.0);
 
