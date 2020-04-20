@@ -88,17 +88,17 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   end_vec.normalize();
   start_vec.normalize();
 
-  // Edges are considered half open intervals like [start, end), otherwise
-  // intersections at segment endpoints will be counted twice. Therefore,
-  // if ray_direction intersects {{edge.end}} => no crossing.
-  if (end_vec.dot(ray_direction) == 1.0) return 0;
-
   // ray intersects {{edge.start}} in a non-generic way;
   // which means determining intersection is inconclusive when querying
   // in the direction of ray_direction. Additionally, the degenerate case
   // of whole edge intersection is also handled here, because the whole edge
   // includes {{edge.start}}.
   if (start_vec.dot(ray_direction) == 1.0) return DEGENERATE;
+
+  // Edges are considered half open intervals like [start, end), otherwise
+  // intersections at segment endpoints will be counted twice. Therefore,
+  // if ray_direction intersects {{edge.end}} => no crossing.
+  if (end_vec.dot(ray_direction) == 1.0) return 0;
 
   // check if horizontal line that goes through ray_direction crosses the edge.
   if (det2D(ray_direction, end_vec) < 0 == det2D(ray_direction, start_vec) < 0) return 0;
