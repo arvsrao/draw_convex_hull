@@ -3,7 +3,7 @@
 
 #include "Vector2D.h"
 
-using Point  = Vector2D<int>;
+using Point = Vector2D<int>;
 
 struct Edge {
   Point start, end;
@@ -17,4 +17,4 @@ struct Edge {
   virtual ~Edge();
 };
 
-#endif //DRAW_CONVEX_HULL_EDGE_H
+#endif  // DRAW_CONVEX_HULL_EDGE_H

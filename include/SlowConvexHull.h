@@ -5,13 +5,11 @@
 #ifndef DRAW_CONVEX_HULL_SLOWCONVEXHULL_H
 #define DRAW_CONVEX_HULL_SLOWCONVEXHULL_H
 
-#include "Edge.h"
 #include "ConvexHull.h"
+#include "Edge.h"
 
 class SlowConvexHull : public ConvexHull {
-
  public:
-
   SlowConvexHull(const Points &points);
   virtual ~SlowConvexHull();
 
@@ -25,7 +23,6 @@ class SlowConvexHull : public ConvexHull {
   bool allOnRight(const Point &p, const Point &q, const Points &points);
 
   Points sortClockwise(std::vector<Edge> &segments);
-
 };
 
-#endif //DRAW_CONVEX_HULL_SLOWCONVEXHULL_H
+#endif  // DRAW_CONVEX_HULL_SLOWCONVEXHULL_H
