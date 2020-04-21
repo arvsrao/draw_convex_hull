@@ -1,16 +1,11 @@
 name: clang-format
-
 on: [push]
 
 jobs:
-  build:
+  formatting-check:
+    name: Formatting Check
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - uses: DoozyX/clang-format-lint-action@v0.5
-      with:
-        source: '.'
-        exclude: './resoures'
-        extensions: 'h,cpp'
-        clangFormatVersion: 9
+    - name: Run clang-format style check for C programs.
+      uses: jidicula/clang-format-action@master
