@@ -1,7 +1,8 @@
 #define DEGENERATE -2
 
-#include <algorithm>    // std::max
 #include <include/PointInPolygon.h>
+
+#include <algorithm>  // std::max
 
 // a convenient class internal type
 using RayType = Vector2D<double>;
@@ -15,7 +16,7 @@ PointInPolygon::PointInPolygon(const std::vector<Point> &curve) {
 }
 
 /*
- * Compute oriented intersection number \mod 2 
+ * Compute oriented intersection number \mod 2
  * relative to {{point}}.
  */
 bool PointInPolygon::pointInPolygon(Point &point) {
@@ -24,7 +25,6 @@ bool PointInPolygon::pointInPolygon(Point &point) {
 }
 
 bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
-
   const double EPSILON = 0.1;
 
   int num = 0;
@@ -32,7 +32,6 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
   ray_direction.normalize();  // project onto S^1
 
   for (auto &edge : boundary_curve) {
-
     num = edgeIntersect(point, ray_direction, edge);
 
     // Handle degenerate intersection by perturbing the ray by some epsilon.
@@ -44,7 +43,7 @@ bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
     intersection_num += num;
   }
 
-  return (bool) (intersection_num % 2);
+  return (bool)(intersection_num % 2);
 }
 
 double det2D(const RayType &p, const RayType &q) {
@@ -52,12 +51,11 @@ double det2D(const RayType &p, const RayType &q) {
 }
 
 bool PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
-
   // compute normal of start_vec && end_vec.
   //
   //      [ i    j    k ]
   //  det [ a.x  a.y  1 ]
-  //      [ b.x  b.y  1 ]	
+  //      [ b.x  b.y  1 ]
   double eta_x = a.y - b.y;
   double eta_y = b.x - a.x;
   double eta_z = a.x * b.y - b.x * a.y;
@@ -71,8 +69,8 @@ bool PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
   return (eta_z > 0) ? comparable <= 0 : comparable >= 0;
 }
 
-int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &edge) {
-
+int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction,
+                                  Edge &edge) {
   /** Imagine an infinite length ray from point in direction (1, EPSILON),
   //    \beta(t) = t * <1, EPSILON> + point
   // Then determine if the ray \beta(t) intersects @param edge by
@@ -101,12 +99,13 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction, Edge &ed
   if (end_vec.dot(ray_direction) == 1.0) return 0;
 
   // check if horizontal line that goes through ray_direction crosses the edge.
-  if (det2D(ray_direction, end_vec) < 0 == det2D(ray_direction, start_vec) < 0) return 0;
+  if (det2D(ray_direction, end_vec) < 0 == det2D(ray_direction, start_vec) < 0)
+    return 0;
 
   // embed start_vec && end_vec && ray_direction into S^1 in the Z=1
   // plane of R^3. Compute the normal of embedded start_vec && end_vec.
   // Then compare the normal to ray_direction.
-  return (int) isRayInSector(start_vec, end_vec, ray_direction);
+  return (int)isRayInSector(start_vec, end_vec, ray_direction);
 }
 
 PointInPolygon::~PointInPolygon() {}
