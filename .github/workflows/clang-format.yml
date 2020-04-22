@@ -7,5 +7,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Run clang-format style check for C programs.
-      uses: jidicula/clang-format-action@master
+    - name: Run clang-format style check for cpp programs.
+      uses: arvsrao/clang-format-action@master
