@@ -53,14 +53,11 @@ double det2D(const RayType &p, const RayType &q) {
 bool PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
   // compute normal of start_vec && end_vec.
   //
-  //      [ i    j    k ]
-  //  det [ a.x  a.y  1 ]
-  //      [ b.x  b.y  1 ]
-  double eta_x = a.y - b.y;
-  double eta_y = b.x - a.x;
-  double eta_z = a.x * b.y - b.x * a.y;
-
-  double comparable = eta_x * ray.x + eta_y * ray.y + eta_z;
+  //      [ r.x  r.y  r.length ]
+  //  det [ a.x  a.y  a.length ]
+  //      [ b.x  b.y  b.length ]
+  double comparable =
+      b.length() * det2D(r, a) + a.length() * det2D(b, r) + det2D(a, b);
 
   // condition is dependent on whether eta points into +z/-z half of R^3.
   // Equality implies query point lies on the line between a and b. In the
@@ -82,21 +79,19 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction,
   RayType end_vec   = RayType(edge.end - point);
   RayType start_vec = RayType(edge.start - point);
 
-  // project everything onto S^1
-  end_vec.normalize();
-  start_vec.normalize();
-
   // ray intersects {{edge.start}} in a non-generic way;
   // which means determining intersection is inconclusive when querying
   // in the direction of ray_direction. Additionally, the degenerate case
   // of whole edge intersection is also handled here, because the whole edge
   // includes {{edge.start}}.
-  if (start_vec.dot(ray_direction) == 1.0) return DEGENERATE;
+  if (det2D(start_vec, ray_direction) == 0 && start_vec.dot(ray_direction) > 0)
+    return DEGENERATE;
 
   // Edges are considered half open intervals like [start, end), otherwise
   // intersections at segment endpoints will be counted twice. Therefore,
   // if ray_direction intersects {{edge.end}} => no crossing.
-  if (end_vec.dot(ray_direction) == 1.0) return 0;
+  if (det2D(end_vec, ray_direction) == 0 && end_vec.dot(ray_direction) > 0)
+    return 0;
 
   // check if horizontal line that goes through ray_direction crosses the edge.
   if (det2D(ray_direction, end_vec) < 0 == det2D(ray_direction, start_vec) < 0)
