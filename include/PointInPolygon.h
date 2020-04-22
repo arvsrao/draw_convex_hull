@@ -1,15 +1,15 @@
 #ifndef DRAW_CONVEX_HULL_POINT_IN_POLYGON_H
 #define DRAW_CONVEX_HULL_POINT_IN_POLYGON_H
 
-#include "Edge.h"
 #include <vector>
 
+#include "Edge.h"
+
 // convenient internal type aliases
-using RayType = Vector2D<double>;
+using RayType  = Vector2D<double>;
 using PolyLine = std::vector<Edge>;
 
 class PointInPolygon {
-
  public:
   PolyLine boundary_curve;
 
@@ -24,7 +24,6 @@ class PointInPolygon {
   virtual ~PointInPolygon();
 
  private:
-
   double angleBetween(const RayType &p, const RayType &q) {
     return std::acos(p.dot(q) / (p.length() * q.length()));
   }
@@ -34,4 +33,4 @@ class PointInPolygon {
   bool pointInPolygon(Point &point, RayType &ray_direction);
 };
 
-#endif //DRAW_CONVEX_HULL_POINT_IN_POLYGON_H
+#endif  // DRAW_CONVEX_HULL_POINT_IN_POLYGON_H

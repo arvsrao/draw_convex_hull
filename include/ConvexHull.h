@@ -2,6 +2,7 @@
 #define DRAW_CONVEX_HULL_CONVEXHULL_H
 
 #include <vector>
+
 #include "Vector2D.h"
 
 // Abstract Class representing a Convex Hull Calculator.
@@ -11,8 +12,7 @@ using Points = std::vector<Point>;
 
 class ConvexHull {
  public:
-
-  virtual ~ConvexHull() {};
+  virtual ~ConvexHull(){};
 
   virtual Points &getConvexHull() = 0;
 
@@ -20,4 +20,4 @@ class ConvexHull {
   Points hull_points;
 };
 
-#endif //DRAW_CONVEX_HULL_CONVEXHULL_H
+#endif  // DRAW_CONVEX_HULL_CONVEXHULL_H

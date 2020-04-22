@@ -1,33 +1,19 @@
-#include <set>
-#include <string>
-#include <random>
-#include <iostream>
+#include <include/FastConvexHull.h>
+#include <include/PointInPolygon.h>
+#include <include/Vector2D.h>
 
 #include <QGraphicsView>
 #include <QtWidgets/QApplication>
-
-#include <include/Vector2D.h>
-#include <include/FastConvexHull.h>
-#include <include/PointInPolygon.h>
+#include <iostream>
+#include <random>
+#include <set>
+#include <string>
 
 Points polyLine = {
-    Point(-44, -134),
-    Point(-67, -112),
-    Point(-105, -39),
-    Point(-64, 42),
-    Point(5, 96),
-    Point(93, 47),
-    Point(121, -15),
-    Point(99, -83),
-    Point(85, -106),
-    Point(61, -60),
-    Point(63, -14),
-    Point(34, 40),
-    Point(-14, 22),
-    Point(-46, -33),
-    Point(-22, -65),
-    Point(-33, -107)
-};
+    Point(-44, -134), Point(-67, -112), Point(-105, -39), Point(-64, 42),
+    Point(5, 96),     Point(93, 47),    Point(121, -15),  Point(99, -83),
+    Point(85, -106),  Point(61, -60),   Point(63, -14),   Point(34, 40),
+    Point(-14, 22),   Point(-46, -33),  Point(-22, -65),  Point(-33, -107)};
 
 Points generatePoints(const int numPoints, const double maxRange) {
   std::random_device rd;
@@ -55,32 +41,26 @@ Points generatePoints(const int numPoints, const double maxRange) {
 }
 
 void display(Points &_points, Points &hull, QGraphicsScene *scene) {
-
   QVector<QPointF> points;
 
   // Fill in points with n number of points
-  for (unsigned long i = 0; i < _points.size(); i++) points.append(QPointF(_points[i].x, _points[i].y));
+  for (unsigned long i = 0; i < _points.size(); i++)
+    points.append(QPointF(_points[i].x, _points[i].y));
 
   for (long i = 0; i < points.size(); i++)
     scene->addEllipse(points[i].x(), points[i].y(), 1, 1);
 
   // print the given shape boundary
   for (unsigned long i = 0; i < polyLine.size(); i += 1)
-    scene->addLine(polyLine[i].x,
-                   polyLine[i].y,
+    scene->addLine(polyLine[i].x, polyLine[i].y,
                    polyLine[(i + 1) % polyLine.size()].x,
-                   polyLine[(i + 1) % polyLine.size()].y,
-                   QPen(Qt::green, 2));
+                   polyLine[(i + 1) % polyLine.size()].y, QPen(Qt::green, 2));
 
   // print the computed convex hull
   for (unsigned long i = 0; i < hull.size(); i += 1) {
-    scene->addLine(hull[i].x,
-                   hull[i].y,
-                   hull[(i + 1) % hull.size()].x,
-                   hull[(i + 1) % hull.size()].y,
-                   QPen(Qt::blue, 2));
+    scene->addLine(hull[i].x, hull[i].y, hull[(i + 1) % hull.size()].x,
+                   hull[(i + 1) % hull.size()].y, QPen(Qt::blue, 2));
   }
-
 }
 
 int main(int argc, char *argv[]) {
@@ -95,7 +75,7 @@ int main(int argc, char *argv[]) {
 
   // Create a view, put a scene in it and add tiny circles
   // in the scene
-  QGraphicsView *view = new QGraphicsView();
+  QGraphicsView *view   = new QGraphicsView();
   QGraphicsScene *scene = new QGraphicsScene();
   view->setScene(scene);
 
