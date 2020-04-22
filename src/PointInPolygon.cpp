@@ -27,7 +27,7 @@ bool PointInPolygon::pointInPolygon(Point &point) {
 bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
   const double EPSILON = 0.1;
 
-  int num = 0;
+  int num              = 0;
   int intersection_num = 0;
   ray_direction.normalize();  // project onto S^1
 
@@ -79,7 +79,7 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction,
   **/
 
   // cast Vector2D<int> to Vector2D<double>
-  RayType end_vec = RayType(edge.end - point);
+  RayType end_vec   = RayType(edge.end - point);
   RayType start_vec = RayType(edge.start - point);
 
   // project everything onto S^1

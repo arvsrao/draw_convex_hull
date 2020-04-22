@@ -6,7 +6,7 @@
 #include "Edge.h"
 
 // convenient internal type aliases
-using RayType = Vector2D<double>;
+using RayType  = Vector2D<double>;
 using PolyLine = std::vector<Edge>;
 
 class PointInPolygon {

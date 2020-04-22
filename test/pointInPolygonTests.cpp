@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 #include <include/PointInPolygon.h>
 
-using Point = Vector2D<int>;
+using Point   = Vector2D<int>;
 using RayType = Vector2D<double>;
 
 TEST(PointInPolygon, AngleMeasureTest) {
-  Point ray = Point(1, 0);
-  Point end = Point(0, 1);
+  Point ray   = Point(1, 0);
+  Point end   = Point(0, 1);
   Point start = Point(-1, -1);
 
   std::cout << "\n\n";
@@ -16,9 +16,9 @@ TEST(PointInPolygon, AngleMeasureTest) {
   double num = -0.99014577103682988;
   std::cout << "acos(-0.99014577103682988) = " << std::acos(num);
 
-  RayType ra = RayType(1.0, 0.1);
+  RayType ra  = RayType(1.0, 0.1);
   RayType vec = RayType(-98.0, -24.0);
-  double val = ra.dot(vec) / ra.length() / vec.length();
+  double val  = ra.dot(vec) / ra.length() / vec.length();
   std::cout << "\n\n";
 
   std::cout << "val is " << val << "\n";
@@ -26,16 +26,16 @@ TEST(PointInPolygon, AngleMeasureTest) {
   std::cout << "\n\n";
 
   std::vector<Point> polyLine = {Point(-4, -4), Point(0, 4), Point(4, 0)};
-  PointInPolygon pipCalc = PointInPolygon(polyLine);
+  PointInPolygon pipCalc      = PointInPolygon(polyLine);
 
   // std::cout << pipCalc.angleBetween(ra, vec) << "\n";
 }
 
 TEST(PointInPolygon, TriangleTest) {
   std::vector<Point> polyLine = {Point(-4, -4), Point(0, 4), Point(4, 0)};
-  PointInPolygon pipCalc = PointInPolygon(polyLine);
+  PointInPolygon pipCalc      = PointInPolygon(polyLine);
 
-  Point query_point_inside = Point(0, 0);
+  Point query_point_inside  = Point(0, 0);
   Point query_point_outside = Point(2, 3);
 
   ASSERT_FALSE(pipCalc.pointInPolygon(query_point_outside));
@@ -44,8 +44,8 @@ TEST(PointInPolygon, TriangleTest) {
 
 TEST(PointInPolygon, isRayInSectorTest) {
   // test isRayInSector function
-  RayType a = RayType(-0.70046, -0.71368);
-  RayType b = RayType(-0.406138, 0.913811);
+  RayType a   = RayType(-0.70046, -0.71368);
+  RayType b   = RayType(-0.406138, 0.913811);
   RayType ray = RayType(1.0, 0.0);
 
   ASSERT_FALSE(PointInPolygon::isRayInSector(a, b, ray));

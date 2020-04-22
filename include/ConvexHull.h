@@ -7,7 +7,7 @@
 
 // Abstract Class representing a Convex Hull Calculator.
 
-using Point = Vector2D<int>;
+using Point  = Vector2D<int>;
 using Points = std::vector<Point>;
 
 class ConvexHull {

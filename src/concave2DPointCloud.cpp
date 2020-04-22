@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 
   // Create a view, put a scene in it and add tiny circles
   // in the scene
-  QGraphicsView *view = new QGraphicsView();
+  QGraphicsView *view   = new QGraphicsView();
   QGraphicsScene *scene = new QGraphicsScene();
   view->setScene(scene);
 
