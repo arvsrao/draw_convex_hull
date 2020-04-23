@@ -1,5 +1,9 @@
 name: clang-format
-on: [push]
+on:
+  push:
+    paths-ignore:
+    - 'resources/**'
+    - 'README.md'
 
 jobs:
   formatting-check:
