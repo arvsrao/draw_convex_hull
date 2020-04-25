@@ -43,8 +43,8 @@ double Vector2D<T>::arccos() const {
 template <typename T>
 void Vector2D<T>::normalize() {
   double _length = this->length();
-  x = (T)((double)x / _length);
-  y = (T)((double)y / _length);
+  x              = (T)((double)x / _length);
+  y              = (T)((double)y / _length);
 }
 
 template <typename T>
