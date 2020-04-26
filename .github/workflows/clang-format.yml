@@ -18,7 +18,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        repository: google/googletest
     - name: Test project with googletest.
       uses: arvsrao/googletest-action@master
