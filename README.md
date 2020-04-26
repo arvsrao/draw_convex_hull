@@ -20,4 +20,4 @@ Ex.
 
 ![Image description](resources/demo-convex-hull.jpg)
 
-[1]: https://github.com/arvsrao/draw_convex_hull/workflows/ci-format-test/badge.svg
+[1]: https://github.com/arvsrao/draw_convex_hull/workflows/CI/badge.svg
