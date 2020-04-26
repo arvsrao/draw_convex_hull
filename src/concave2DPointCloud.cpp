@@ -1,13 +1,10 @@
 #include <include/FastConvexHull.h>
 #include <include/PointInPolygon.h>
-#include <include/Vector2D.h>
 
 #include <QGraphicsView>
 #include <QtWidgets/QApplication>
-#include <iostream>
 #include <random>
 #include <set>
-#include <string>
 
 Points polyLine = {
     Point(-44, -134), Point(-67, -112), Point(-105, -39), Point(-64, 42),
