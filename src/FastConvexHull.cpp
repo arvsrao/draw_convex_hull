@@ -1,7 +1,6 @@
 #include <include/FastConvexHull.h>
 
 #include <algorithm>
-#include <vector>
 
 Points &FastConvexHull::getConvexHull() { return hull_points; }
 

@@ -1,14 +1,10 @@
 #include <include/FastConvexHull.h>
 #include <include/SlowConvexHull.h>
-#include <include/Vector2D.h>
 
 #include <QGraphicsView>
 #include <QtWidgets/QApplication>
 #include <include/CLI11.hpp>
-#include <iostream>
 #include <random>
-#include <set>
-#include <string>
 
 Points generatePoints(const int numPoints, const double maxRange) {
   std::random_device rd;
