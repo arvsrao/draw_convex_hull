@@ -1,5 +1,5 @@
 # draw_convex_hull 
-![clang-format][1]
+![clang-format and tests][1]
 
 A QT program that draws the convex hull of randomly generated points.
 * Requires at least CMake 3.16 to compile and build.
@@ -20,4 +20,4 @@ Ex.
 
 ![Image description](resources/demo-convex-hull.jpg)
 
-[1]: https://github.com/arvsrao/draw_convex_hull/workflows/clang-format/badge.svg
+[1]: https://github.com/arvsrao/draw_convex_hull/workflows/ci-format-test/badge.svg
