@@ -17,13 +17,10 @@ Points generatePoints(const int numPoints, const double maxRange) {
   while (i < numPoints) {
     auto pt = Vector2D<int>(distribution(generator), distribution(generator));
 
-    if (pt.length() > maxRange / 4.0 && pt.length() < 3.0 * maxRange / 4.0) { retVal.push_back(pt);
+    if (pt.length() > maxRange / 4.0 && pt.length() < 3.0 * maxRange / 4.0) {
+      retVal.push_back(pt);
       i++;
-                          }
-
-
-
-
+    }
   }
 
   // remove duplicates
@@ -37,9 +34,11 @@ void display(Points &_points, Points &hull, QGraphicsScene *scene) {
   QVector<QPointF> points;
 
   // Fill in points with n number of points
-  for (unsigned long i = 0; i < _points.size(); i++) points.append(QPointF(_points[i].x, _points[i].y));
+  for (unsigned long i = 0; i < _points.size(); i++)
+    points.append(QPointF(_points[i].x, _points[i].y));
 
-  for (long i = 0; i < points.size(); i++) scene->addEllipse(points[i].x(), points[i].y(), 1, 1);
+  for (long i = 0; i < points.size(); i++)
+    scene->addEllipse(points[i].x(), points[i].y(), 1, 1);
 
   for (unsigned long i = 0; i < hull.size(); i += 1)
     scene->addLine(hull[i].x, hull[i].y, hull[(i + 1) % hull.size()].x,
@@ -52,12 +51,13 @@ ConvexHull *convexHullFactory(bool fast_bool, Points &points) {
 }
 
 int main(int argc, char *argv[]) {
-          QApplication a(argc, argv);
+  QApplication a(argc, argv);
 
-       CLI::App app{"Convell Hull Demo"};
+  CLI::App app{"Convell Hull Demo"};
 
   int num_points = 0;
-  app.add_option("--num", num_points, "number of points to generate")->required();
+  app.add_option("--num", num_points, "number of points to generate")
+      ->required();
 
   bool fast_bool = true;
   app.add_option(
