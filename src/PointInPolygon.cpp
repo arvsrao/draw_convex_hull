@@ -56,11 +56,11 @@ bool PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
   //      [ r.x  r.y  r.length ]       [ b.length a.length r.length ]
   //  det [ a.x  a.y  a.length ] = det [ b.y      a.y      r.y      ]
   //      [ b.x  b.y  b.length ]       [ b.x      a.x      r.x      ]
-  double side = det2D(a,b);
+  double side = det2D(a, b);
   double determinant =
-      b.length() * det2D(r, a) + a.length() * det2D(b, r) + side;
+      b.length() * det2D(ray, a) + a.length() * det2D(b, ray) + side;
 
-  // condition is dependent on whether normal to the plane spanned by 
+  // condition is dependent on whether normal to the plane spanned by
   // (a.x, a.y, a.length) & (b.x, b.y, b.length) points into +z/-z half of R^3.
   // Equality implies query point lies on the line between a and b. In the
   // context of edgeIntersect where this function is called, equality means
