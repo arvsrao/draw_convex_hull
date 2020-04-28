@@ -53,17 +53,19 @@ double det2D(const RayType &p, const RayType &q) {
 bool PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
   // compute normal of start_vec && end_vec.
   //
-  //      [ r.x  r.y  r.length ]
-  //  det [ a.x  a.y  a.length ]
-  //      [ b.x  b.y  b.length ]
-  double comparable =
-      b.length() * det2D(r, a) + a.length() * det2D(b, r) + det2D(a, b);
+  //      [ r.x  r.y  r.length ]       [ b.length a.length r.length ]
+  //  det [ a.x  a.y  a.length ] = det [ b.y      a.y      r.y      ]
+  //      [ b.x  b.y  b.length ]       [ b.x      a.x      r.x      ]
+  double side = det2D(a,b);
+  double determinant =
+      b.length() * det2D(r, a) + a.length() * det2D(b, r) + side;
 
-  // condition is dependent on whether eta points into +z/-z half of R^3.
+  // condition is dependent on whether normal to the plane spanned by 
+  // (a.x, a.y, a.length) & (b.x, b.y, b.length) points into +z/-z half of R^3.
   // Equality implies query point lies on the line between a and b. In the
   // context of edgeIntersect where this function is called, equality means
   // the query point lies on the given edge.
-  return (eta_z > 0) ? comparable <= 0 : comparable >= 0;
+  return (side * determinant) <= 0;
 }
 
 int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction,
@@ -84,13 +86,13 @@ int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction,
   // in the direction of ray_direction. Additionally, the degenerate case
   // of whole edge intersection is also handled here, because the whole edge
   // includes {{edge.start}}.
-  if (det2D(start_vec, ray_direction) == 0 && start_vec.dot(ray_direction) > 0)
+  if (det2D(start_vec, ray_direction) == 0 && start_vec.dot(ray_direction) >= 0)
     return DEGENERATE;
 
   // Edges are considered half open intervals like [start, end), otherwise
   // intersections at segment endpoints will be counted twice. Therefore,
   // if ray_direction intersects {{edge.end}} => no crossing.
-  if (det2D(end_vec, ray_direction) == 0 && end_vec.dot(ray_direction) > 0)
+  if (det2D(end_vec, ray_direction) == 0 && end_vec.dot(ray_direction) >= 0)
     return 0;
 
   // check if horizontal line that goes through ray_direction crosses the edge.
