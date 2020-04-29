@@ -6,16 +6,17 @@ on:
     - 'README.md'
 
 jobs:
-  runs-on: ubuntu-latest
   formatting-check:
     name: Formatting Check
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format style check for cpp programs.
       uses: arvsrao/clang-format-action@master
   test-project:
-    needs: formatting-check
     name: Test Project
+    needs: formatting-check
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Test project with googletest.
