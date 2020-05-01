@@ -40,6 +40,11 @@ TEST(PointInPolygon, TriangleTest) {
 
   ASSERT_FALSE(pipCalc.pointInPolygon(query_point_outside));
   ASSERT_TRUE(pipCalc.pointInPolygon(query_point_inside));
+
+  // verticies of triangle should be consider inside triangle
+  for (auto &vertex : polyLine) {
+    ASSERT_TRUE(pipCalc.pointInPolygon(vertex));
+  }
 }
 
 TEST(PointInPolygon, isRayInSectorTest) {
@@ -51,19 +56,27 @@ TEST(PointInPolygon, isRayInSectorTest) {
   ASSERT_FALSE(PointInPolygon::isRayInSector(a, b, ray));
 }
 
+// use the same shape and PointInPolygon calculator in following tests.
+std::vector<Point> polyLine = {
+    Point(-44, -134), Point(-67, -112), Point(-105, -39), Point(-64, 42),
+    Point(5, 96),     Point(93, 47),    Point(121, -15),  Point(99, -83),
+    Point(85, -106),  Point(61, -60),   Point(63, -14),   Point(34, 40),
+    Point(-14, 22),   Point(-46, -33),  Point(-22, -65),  Point(-33, -107)};
+
+PointInPolygon pipCalc = PointInPolygon(polyLine);
+
 TEST(PointInPolygon, PointsNotInShape) {
   std::vector<Point> pointsNotInShape = {Point(-7, -15), Point(-3, -14),
                                          Point(14, -14), Point(17, -15)};
 
-  std::vector<Point> polyLine = {
-      Point(-44, -134), Point(-67, -112), Point(-105, -39), Point(-64, 42),
-      Point(5, 96),     Point(93, 47),    Point(121, -15),  Point(99, -83),
-      Point(85, -106),  Point(61, -60),   Point(63, -14),   Point(34, 40),
-      Point(-14, 22),   Point(-46, -33),  Point(-22, -65),  Point(-33, -107)};
-
-  PointInPolygon pipCalc = PointInPolygon(polyLine);
-
   for (auto &wp : pointsNotInShape) {
     ASSERT_FALSE(pipCalc.pointInPolygon(wp));
+  }
+}
+
+TEST(PointInPolygon, PointsOnBoundaryOfShape) {
+  for (auto &wp : polyLine) {
+    wp.print();
+    EXPECT_TRUE(pipCalc.pointInPolygon(wp));
   }
 }
