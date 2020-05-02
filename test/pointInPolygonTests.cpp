@@ -31,20 +31,54 @@ TEST(PointInPolygon, AngleMeasureTest) {
   // std::cout << pipCalc.angleBetween(ra, vec) << "\n";
 }
 
-TEST(PointInPolygon, TriangleTest) {
-  std::vector<Point> polyLine = {Point(-4, -4), Point(0, 4), Point(4, 0)};
-  PointInPolygon pipCalc      = PointInPolygon(polyLine);
+std::vector<Point> triangle        = {Point(-4, -4), Point(0, 4), Point(4, 0)};
+PointInPolygon pointInTriangleCalc = PointInPolygon(triangle);
 
+TEST(PointInPolygon, TriangleTest) {
   Point query_point_inside  = Point(0, 0);
   Point query_point_outside = Point(2, 3);
 
-  ASSERT_FALSE(pipCalc.pointInPolygon(query_point_outside));
-  ASSERT_TRUE(pipCalc.pointInPolygon(query_point_inside));
+  ASSERT_FALSE(pointInTriangleCalc.pointInPolygon(query_point_outside));
+  ASSERT_TRUE(pointInTriangleCalc.pointInPolygon(query_point_inside));
 
-  // vertices of triangle should be consider inside triangle
-  for (auto &vertex : polyLine) {
-    ASSERT_TRUE(pipCalc.pointInPolygon(vertex));
+  // vertices of triangle should be considered inside triangle
+  for (auto &vertex : triangle) {
+    ASSERT_TRUE(pointInTriangleCalc.pointInPolygon(vertex));
   }
+
+  // check that non-vertex points on the boundary are detected
+  Point point_in_edge = Point((triangle[1].x + triangle[2].x) / 2,
+                              (triangle[1].y + triangle[2].y) / 2);
+  RayType ray         = RayType(1, 0);
+
+  Intersection crossing_type = pointInTriangleCalc.edgeIntersect(
+      point_in_edge, ray, pointInTriangleCalc.boundary_curve[1]);
+
+  ASSERT_TRUE(crossing_type == OnEdge);
+}
+
+TEST(PointInPolygon, Collinearity) {
+  // Check off-edge Collinearity situations
+  Point left_of_edge   = Point(-4, 8);
+  Point right_of_edge  = Point(8, -4);
+  RayType ray_off_edge = RayType(1, 0);
+  RayType ray_in_edge  = RayType(1, -1);
+
+  Intersection left_crossing_type = pointInTriangleCalc.edgeIntersect(
+      left_of_edge, ray_off_edge, pointInTriangleCalc.boundary_curve[1]);
+  Intersection right_crossing_type = pointInTriangleCalc.edgeIntersect(
+      right_of_edge, ray_off_edge, pointInTriangleCalc.boundary_curve[1]);
+
+  ASSERT_TRUE(left_crossing_type == None);
+  ASSERT_TRUE(right_crossing_type == None);
+
+  left_crossing_type = pointInTriangleCalc.edgeIntersect(
+      left_of_edge, ray_in_edge, pointInTriangleCalc.boundary_curve[1]);
+  right_crossing_type = pointInTriangleCalc.edgeIntersect(
+      right_of_edge, ray_in_edge, pointInTriangleCalc.boundary_curve[1]);
+
+  ASSERT_TRUE(left_crossing_type == Degenerate);
+  ASSERT_TRUE(right_crossing_type == None);
 }
 
 TEST(PointInPolygon, isRayInSectorTest) {
@@ -74,7 +108,7 @@ TEST(PointInPolygon, PointsNotInShape) {
   }
 }
 
-TEST(PointInPolygon, PointsOnBoundaryOfShape) {
+TEST(PointInPolygon, BoundaryOfShape) {
   for (auto &wp : polyLine) {
     EXPECT_TRUE(pipCalc.pointInPolygon(wp));
   }

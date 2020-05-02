@@ -22,6 +22,8 @@ class PointInPolygon {
 
   static Intersection isRayInSector(RayType &a, RayType &b, RayType &ray);
 
+  Intersection edgeIntersect(Point &p, RayType &ray, Edge &edge);
+
   virtual ~PointInPolygon();
 
  private:
@@ -32,8 +34,6 @@ class PointInPolygon {
   static double det2D(const RayType &p, const RayType &q) {
     return p.x * q.y - q.x * p.y;
   }
-
-  Intersection edgeIntersect(Point &p, RayType &ray, Edge &edge);
 
   bool pointInPolygon(Point &point, RayType &ray_direction);
 };
