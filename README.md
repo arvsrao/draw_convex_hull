@@ -1,4 +1,4 @@
-# draw_convex_hull 
+# draw_convex_hull
 ![clang-format and tests][1]
 
 A QT program that draws the convex hull of randomly generated points.
@@ -17,7 +17,14 @@ Ex.
  draw_convex_hull_demo --num 10000 --fast true
 ```
 
-
 ![Image description](resources/demo-convex-hull.jpg)
+
+#### Capabilities
+
+* Given a simple closed 2D polygon generate a point-in-polygon predicate. In the image below one sees several thousand randomly
+generated points that were masked (or filtered) by ```PointInPolygon``` of the polygon marked in green. For comparison, 
+the convex hull of the polygon is shown in blue.
+
+![PointInPolygon](resources/point-in-polygon-concave.png)
 
 [1]: https://github.com/arvsrao/draw_convex_hull/workflows/CI/badge.svg
