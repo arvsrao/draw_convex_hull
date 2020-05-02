@@ -67,8 +67,9 @@ Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b,
   double determinant = b.length() * det2D(ray, a) + a.length() * det2D(b, ray) +
                        ray.length() * side;
 
-  // determinant == 0 implies the ray emanating from point p intersects
-  // edge.end or edge.start. While the model use here assumes that edges are
+  // determinant == 0  iff ray is in the plane determined by (a, ||a||) and
+  // (b, ||b||). Furthermore, the ray emanating from point p intersects
+  // edge.end or edge.start. While the model used here assumes that edges are
   // are half open, an end of an edge is the start of another edge, so
   // in either case the intersection inconclusive.
   if (determinant == 0) return Degenerate;
@@ -101,18 +102,11 @@ Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
     if (det2D(ray, point_to_start) != 0 || ray.dot(point_to_start) < 0)
       return None;
 
-    // only possibility left is that that ray emanating from point p intersects
+    // only possibility left is that the ray emanating from point p intersects
     // the edge completely. Which is inconclusive.
     return Degenerate;
   }
 
-  // check if horizontal line that goes through ray_direction crosses the edge.
-  if ((det2D(point_to_end, ray) < 0) == (det2D(point_to_start, ray) < 0))
-    return None;
-
-  // embed start_vec && end_vec && ray_direction into S^1 in the Z=1
-  // plane of R^3. Compute the normal of embedded start_vec && end_vec.
-  // Then compare the normal to ray_direction.
   return isRayInSector(point_to_start, point_to_end, ray);
 }
 
