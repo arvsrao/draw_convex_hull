@@ -16,6 +16,8 @@ class Vector2D {
 
   double arccos() const;
 
+  Vector2D rotate(double theta) const;
+
   void normalize();
 
   T dot(const Vector2D &other) const;

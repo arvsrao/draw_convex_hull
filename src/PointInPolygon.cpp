@@ -1,11 +1,12 @@
-#define DEGENERATE -2
-
 #include <include/PointInPolygon.h>
 
 #include <algorithm>  // std::max
 
 // a convenient class internal type
 using RayType = Vector2D<double>;
+
+// rotation angle for handling degeneracies
+const double THETA = PI / 20.0;
 
 PointInPolygon::PointInPolygon(const PolyLine &curve) : boundary_curve(curve) {}
 
@@ -24,88 +25,91 @@ bool PointInPolygon::pointInPolygon(Point &point) {
   return pointInPolygon(point, horizontal_ray);
 }
 
-bool PointInPolygon::pointInPolygon(Point &point, RayType &ray_direction) {
-  const double EPSILON = 0.1;
-
-  int num              = 0;
+/**
+ * Imagine an infinite length ray from point p in direction (1, 0),
+ *    \r(t) = t * <1, 0> + p
+ * Then determine if the ray \r(t) intersects an edge by
+ * checking if the ray lies in between vectors from point to edge.end
+ * and the vector from point to edge.start.bool
+ */
+bool PointInPolygon::pointInPolygon(Point &p, RayType &ray_direction) {
+  Intersection num     = None;
   int intersection_num = 0;
-  ray_direction.normalize();  // project onto S^1
+  RayType perturbed;
 
   for (auto &edge : boundary_curve) {
-    num = edgeIntersect(point, ray_direction, edge);
+    num = edgeIntersect(p, ray_direction, edge);
 
-    // Handle degenerate intersection by perturbing the ray by some epsilon.
-    if (num == DEGENERATE) {
-      RayType perturbed_direction = ray_direction + RayType(0.0, EPSILON);
-      return pointInPolygon(point, perturbed_direction);
+    // Handle degenerate intersection by perturbing the angle of the ray.
+    switch (num) {
+      case Degenerate:
+        perturbed = ray_direction.rotate(THETA);
+        return pointInPolygon(p, perturbed);
+      case OnEdge:
+        return true;
+      default:
+        intersection_num += num;
+        break;
     }
-
-    intersection_num += num;
   }
 
   return (bool)(intersection_num % 2);
 }
 
-double det2D(const RayType &p, const RayType &q) {
-  return p.x * q.y - q.x * p.y;
-}
-
-bool PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
-  // compute normal of start_vec && end_vec.
+Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b,
+                                           RayType &ray) {
+  // compute normal of a && b.
   //
-  //      [ i    j    k ]
-  //  det [ a.x  a.y  1 ]
-  //      [ b.x  b.y  1 ]
-  double eta_x = a.y - b.y;
-  double eta_y = b.x - a.x;
-  double eta_z = a.x * b.y - b.x * a.y;
+  //      [ r.x  r.y  r.length ]       [ b.length a.length r.length ]
+  //  det [ a.x  a.y  a.length ] = det [ b.y      a.y      r.y      ]
+  //      [ b.x  b.y  b.length ]       [ b.x      a.x      r.x      ]
+  double side        = det2D(a, b);
+  double determinant = b.length() * det2D(ray, a) + a.length() * det2D(b, ray) +
+                       ray.length() * side;
 
-  double comparable = eta_x * ray.x + eta_y * ray.y + eta_z;
+  // determinant == 0  iff ray is in the plane determined by (a, ||a||) and
+  // (b, ||b||). Furthermore, the ray emanating from point p intersects
+  // edge.end or edge.start. While the model used here assumes that edges are
+  // are half open, an end of an edge is the start of another edge, so
+  // in either case the intersection inconclusive.
+  if (determinant == 0) return Degenerate;
 
-  // condition is dependent on whether eta points into +z/-z half of R^3.
-  // Equality implies query point lies on the line between a and b. In the
-  // context of edgeIntersect where this function is called, equality means
-  // the query point lies on the given edge.
-  return (eta_z > 0) ? comparable <= 0 : comparable >= 0;
+  // condition is dependent on whether normal to the plane spanned by
+  // (a.x, a.y, a.length) & (b.x, b.y, b.length) points into +z/-z half of R^3.
+  // side can't be 0, because collinearity is handled earlier.
+  double coeff = (side > 0) ? determinant : -1 * determinant;
+  return (coeff < 0) ? Proper : None;
 }
 
-int PointInPolygon::edgeIntersect(Point &point, RayType &ray_direction,
-                                  Edge &edge) {
-  /** Imagine an infinite length ray from point in direction (1, EPSILON),
-  //    \beta(t) = t * <1, EPSILON> + point
-  // Then determine if the ray \beta(t) intersects @param edge by
-  // checking if the ray lies in between vectors from point to edge.end
-  // and the vector from point to edge.start.
-  **/
-
+Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
+  // eagerly check for collinearity
   // cast Vector2D<int> to Vector2D<double>
-  RayType end_vec   = RayType(edge.end - point);
-  RayType start_vec = RayType(edge.start - point);
+  RayType point_to_end   = RayType(edge.end - p);
+  RayType point_to_start = RayType(edge.start - p);
 
-  // project everything onto S^1
-  end_vec.normalize();
-  start_vec.normalize();
+  // There are essentially two cases to handle if p, edge.start, and edge.end
+  // are collinear.
+  // 1. p is on either side of the edge.
+  //   * if ray crosses the edge it intersects the whole edge
+  //.    which is DEGENERATE
+  //.  * if ray doesn't intersection return None
+  // 2. if the point in the edge simply return OnEdge.
+  if (det2D(point_to_start, point_to_end) == 0) {
+    // p lies on edge including possibly the endpoints.
+    if (point_to_start.dot(point_to_end) <= 0) return OnEdge;
 
-  // ray intersects {{edge.start}} in a non-generic way;
-  // which means determining intersection is inconclusive when querying
-  // in the direction of ray_direction. Additionally, the degenerate case
-  // of whole edge intersection is also handled here, because the whole edge
-  // includes {{edge.start}}.
-  if (start_vec.dot(ray_direction) == 1.0) return DEGENERATE;
+    // At this point we know that the edge lies either completely to the
+    // left or the right of point p. Does ray point in the direction
+    // of and into the edge?
+    if (det2D(ray, point_to_start) != 0 || ray.dot(point_to_start) < 0)
+      return None;
 
-  // Edges are considered half open intervals like [start, end), otherwise
-  // intersections at segment endpoints will be counted twice. Therefore,
-  // if ray_direction intersects {{edge.end}} => no crossing.
-  if (end_vec.dot(ray_direction) == 1.0) return 0;
+    // only possibility left is that the ray emanating from point p intersects
+    // the edge completely. Which is inconclusive.
+    return Degenerate;
+  }
 
-  // check if horizontal line that goes through ray_direction crosses the edge.
-  if (det2D(ray_direction, end_vec) < 0 == det2D(ray_direction, start_vec) < 0)
-    return 0;
-
-  // embed start_vec && end_vec && ray_direction into S^1 in the Z=1
-  // plane of R^3. Compute the normal of embedded start_vec && end_vec.
-  // Then compare the normal to ray_direction.
-  return (int)isRayInSector(start_vec, end_vec, ray_direction);
+  return isRayInSector(point_to_start, point_to_end, ray);
 }
 
 PointInPolygon::~PointInPolygon() {}
