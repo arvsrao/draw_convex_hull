@@ -87,18 +87,20 @@ Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
   RayType point_to_end   = RayType(edge.end - p);
   RayType point_to_start = RayType(edge.start - p);
 
-  // There 3 collinearity cases
-  // * before or after the edge
+  // There are essentially two cases to handle if p, edge.start, and edge.end
+  // are collinear.
+  // 1. p is on either side of the edge.
   //   * if ray crosses the edge it intersects the whole edge
   //.    which is DEGENERATE
-  //.  * if ray doesn't intersection return 0
-  // * if the point in the edge simply return true.
+  //.  * if ray doesn't intersection return None
+  // 2. if the point in the edge simply return OnEdge.
   if (det2D(point_to_start, point_to_end) == 0) {
-    // p lies on edge include possibly the endpoints.
+    // p lies on edge including possibly the endpoints.
     if (point_to_start.dot(point_to_end) <= 0) return OnEdge;
 
     // At this point we know that the edge lies either completely to the
-    // left or the right of point p.
+    // left or the right of point p. Does ray point in the direction
+    // of and into the edge?
     if (det2D(ray, point_to_start) != 0 || ray.dot(point_to_start) < 0)
       return None;
 
