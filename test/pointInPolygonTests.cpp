@@ -41,7 +41,7 @@ TEST(PointInPolygon, TriangleTest) {
   ASSERT_FALSE(pipCalc.pointInPolygon(query_point_outside));
   ASSERT_TRUE(pipCalc.pointInPolygon(query_point_inside));
 
-  // verticies of triangle should be consider inside triangle
+  // vertices of triangle should be consider inside triangle
   for (auto &vertex : polyLine) {
     ASSERT_TRUE(pipCalc.pointInPolygon(vertex));
   }
@@ -76,7 +76,6 @@ TEST(PointInPolygon, PointsNotInShape) {
 
 TEST(PointInPolygon, PointsOnBoundaryOfShape) {
   for (auto &wp : polyLine) {
-    wp.print();
     EXPECT_TRUE(pipCalc.pointInPolygon(wp));
   }
 }

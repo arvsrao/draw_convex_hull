@@ -8,6 +8,7 @@
 // convenient internal type aliases
 using RayType  = Vector2D<double>;
 using PolyLine = std::vector<Edge>;
+enum Intersection { None = 0, Proper = 1, OnEdge, Degenerate };
 
 class PointInPolygon {
  public:
@@ -19,7 +20,7 @@ class PointInPolygon {
 
   bool pointInPolygon(Point &point);
 
-  static bool isRayInSector(RayType &a, RayType &b, RayType &ray);
+  static Intersection isRayInSector(RayType &a, RayType &b, RayType &ray);
 
   virtual ~PointInPolygon();
 
@@ -32,8 +33,7 @@ class PointInPolygon {
     return p.x * q.y - q.x * p.y;
   }
 
-  int edgeIntersect(RayType &ray, RayType &point_to_start,
-                    RayType &point_to_end);
+  Intersection edgeIntersect(Point &p, RayType &ray, Edge &edge);
 
   bool pointInPolygon(Point &point, RayType &ray_direction);
 };

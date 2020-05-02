@@ -1,5 +1,3 @@
-#define DEGENERATE -2
-
 #include <include/PointInPolygon.h>
 
 #include <algorithm>  // std::max
@@ -32,28 +30,34 @@ bool PointInPolygon::pointInPolygon(Point &point) {
  *    \r(t) = t * <1, 0> + p
  * Then determine if the ray \r(t) intersects an edge by
  * checking if the ray lies in between vectors from point to edge.end
+ * and the vector from point to edge.start.bool
  */
-and the vector from point to edge.start.bool PointInPolygon::pointInPolygon(
-    Point &p, RayType &ray_direction) {
-  int num              = 0;
+bool PointInPolygon::pointInPolygon(Point &p, RayType &ray_direction) {
+  Intersection num     = None;
   int intersection_num = 0;
+  RayType perturbed;
 
   for (auto &edge : boundary_curve) {
     num = edgeIntersect(p, ray_direction, edge);
 
     // Handle degenerate intersection by perturbing the angle of the ray.
-    if (num == DEGENERATE) {
-      RayType perturbed = ray_direction.rotate(THETA);
-      return pointInPolygon(p, perturbed);
+    switch (num) {
+      case Degenerate:
+        perturbed = ray_direction.rotate(THETA);
+        return pointInPolygon(p, perturbed);
+      case OnEdge:
+        return true;
+      default:
+        intersection_num += num;
+        break;
     }
-
-    intersection_num += num;
   }
 
   return (bool)(intersection_num % 2);
 }
 
-int PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
+Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b,
+                                           RayType &ray) {
   // compute normal of a && b.
   //
   //      [ r.x  r.y  r.length ]       [ b.length a.length r.length ]
@@ -63,21 +67,21 @@ int PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
   double determinant = b.length() * det2D(ray, a) + a.length() * det2D(b, ray) +
                        ray.length() * side;
 
-  // determinat == 0 implies the ray emmenating from point p intersects
+  // determinant == 0 implies the ray emanating from point p intersects
   // edge.end or edge.start. While the model use here assumes that edges are
   // are half open, an end of an edge is the start of another edge, so
   // in either case the intersection inconclusive.
-  if (determinant == 0) return DEGENERATE;
+  if (determinant == 0) return Degenerate;
 
   // condition is dependent on whether normal to the plane spanned by
   // (a.x, a.y, a.length) & (b.x, b.y, b.length) points into +z/-z half of R^3.
   // side can't be 0, because collinearity is handled earlier.
   double coeff = (side > 0) ? determinant : -1 * determinant;
-  return (coeff < 0) ? 1 : 0;
+  return (coeff < 0) ? Proper : None;
 }
 
-int PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
-  // eagarly check for colinearity
+Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
+  // eagerly check for collinearity
   // cast Vector2D<int> to Vector2D<double>
   RayType point_to_end   = RayType(edge.end - p);
   RayType point_to_start = RayType(edge.start - p);
@@ -90,22 +94,21 @@ int PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
   // * if the point in the edge simply return true.
   if (det2D(point_to_start, point_to_end) == 0) {
     // p lies on edge include possibly the endpoints.
-    if (point_to_start.dot(point_to_end) <= 0)
-      return 0
+    if (point_to_start.dot(point_to_end) <= 0) return OnEdge;
 
-          // At this point we know that the edge lies either completely to the
-          // left or the right of point p.
-          if (det2D(ray, point_to_start) != 0 ||
-              ray.dot(point_to_start) < 0) return 0;
+    // At this point we know that the edge lies either completely to the
+    // left or the right of point p.
+    if (det2D(ray, point_to_start) != 0 || ray.dot(point_to_start) < 0)
+      return None;
 
-    // only possiblity left is that that ray emmenating from point p intersects
+    // only possibility left is that that ray emanating from point p intersects
     // the edge completely. Which is inconclusive.
-    return DEGENERATE;
+    return Degenerate;
   }
 
   // check if horizontal line that goes through ray_direction crosses the edge.
   if ((det2D(point_to_end, ray) < 0) == (det2D(point_to_start, ray) < 0))
-    return 0;
+    return None;
 
   // embed start_vec && end_vec && ray_direction into S^1 in the Z=1
   // plane of R^3. Compute the normal of embedded start_vec && end_vec.
