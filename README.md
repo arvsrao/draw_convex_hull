@@ -6,7 +6,7 @@ A QT program that draws the convex hull of randomly generated points.
 * The project depends on [Qt5][2] and [GoogleTest][3] installations. 
 
 
-#### Install Dependencies
+### Install Dependencies
 
 ###### GoogleTest
 
@@ -40,7 +40,9 @@ the system ```PATH```.
   echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.zshrc
 ```
 
-#### Capabilities
+### Capabilities
+
+#### Compute and Draw a Convex Hull of a 2D Point Cloud
 
 The built executable creates a configurable convex hull demo. The user can
  * choose the number of randomly generated points from which a convex hull is generated
@@ -56,7 +58,9 @@ Ex.
 
 ![Image description](resources/demo-convex-hull.jpg)
 
-* Given a simple closed 2D polygon generate a point-in-polygon predicate. In the image below one sees several thousand randomly
+#### Mask 2D Points with a Point-In-Polygon Predicate
+
+Given a simple closed 2D polygon generate a point-in-polygon predicate. In the image below one sees several thousand randomly
 generated points that were masked (or filtered) by ```PointInPolygon``` of the polygon marked in green. For comparison, 
 the convex hull of the polygon is shown in blue.
 
