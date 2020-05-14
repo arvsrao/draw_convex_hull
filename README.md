@@ -11,7 +11,7 @@ A QT program that draws the convex hull of randomly generated points.
 ###### GoogleTest
 
 On MacOS I find it most convenient to install GoogleTest system-wide as opposed to directly including
-the ``googletest/include``` directory in the project. On MacOS clone [GoogleTest][3] and build with CMake like so
+the ``googletest/include``` directory in the project. Clone [GoogleTest][3] and build with CMake like so
 
 ```
    git clone https://github.com/google/googletest.git
@@ -21,13 +21,24 @@ the ``googletest/include``` directory in the project. On MacOS clone [GoogleTest
 ```
 
 On Pop_OS! (which is based on Ubuntu) I don't formally build the project and install system-wide, instead 
-I clone the project and simply move to a place like ```/usr/src/``` where its visible in the system search 
+I clone the project and simply move to a place like ```/usr/src/``` where it's visible in the system search 
 PATH.
 
 ###### Qt5
 
-On Pop_OS! install Qt5 with ```sudo apt-get -y install qtbase5-dev```. On MacOS install 
-with ```brew install qt```, then sym
+On Pop_OS! install Qt5 with ```sudo apt-get -y install qtbase5-dev```. On MacOS run 
+```brew install qt5```. The install ends with a message like  
+
+```
+ qt is keg-only and must be linked with --force
+```
+
+A consequence of which is that ```Qt5Widgets``` is not findable. Remedy the situation by adding to the 
+the system ```PATH```.
+
+```
+  echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.zshrc
+```
 
 #### Capabilities
 
