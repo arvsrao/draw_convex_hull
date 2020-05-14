@@ -3,7 +3,7 @@
 
 A QT program that draws the convex hull of randomly generated points.
 * Requires at least CMake 3.13 to compile and build.
-* The project depends on [Qt5][2] and [GoogleTest][3] installations. 
+* The project depends on [Qt5][2] and [GoogleTest][3]. 
 
 
 ### Install Dependencies
@@ -21,7 +21,7 @@ the ``googletest/include``` directory in the project. Clone [GoogleTest][3] and 
 ```
 
 On Pop_OS! (which is based on Ubuntu) I don't formally build the project and install system-wide, instead 
-I clone the project and simply move to a place like ```/usr/src/``` where it's visible in the system search 
+I clone the project and simply move it to a place like ```/usr/src/``` where it's visible in the system search 
 PATH.
 
 ###### Qt5
@@ -44,9 +44,9 @@ the system ```PATH```.
 
 #### Compute and Draw a Convex Hull of a 2D Point Cloud
 
-The built executable creates a configurable convex hull demo. The user can
+There is an executable that creates a configurable convex hull demo. The user can
  * choose the number of randomly generated points from which a convex hull is generated
- * pick a fast, ( n * log(n) ) convex hull algorithm, or the quadratic implementation.
+ * pick a fast, ( n * log(n) ) convex hull algorithm, or a slower quadratic implementation.
  
 ```
 Required parameters: 
