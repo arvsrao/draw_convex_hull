@@ -4,8 +4,9 @@ project(draw_convex_hull)
 set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_PREFIX_PATH "~/Qt/5.14.1/gcc_64/lib/cmake/Qt5Widgets/")
 
+# Ubuntu ~/Qt/5.14.1/gcc_64/lib/cmake/Qt5Widgets/
+# MacOS /usr/local/Cellar/qt/5.14.2/include/QtWidgets/
 find_package(Qt5Widgets REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
