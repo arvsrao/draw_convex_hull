@@ -11,7 +11,7 @@ A QT program that draws the convex hull of randomly generated points.
 ###### GoogleTest
 
 On MacOS I find it most convenient to install GoogleTest system-wide as opposed to directly including
-the ``googletest/include``` directory in the project. Clone [GoogleTest][3] and build with CMake like so
+the ```googletest/include``` directory in the project. Clone [GoogleTest][3] and build with CMake like so
 
 ```
    git clone https://github.com/google/googletest.git

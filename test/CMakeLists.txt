@@ -19,6 +19,9 @@ endif()
 
 include_directories(../ ${GTest_DIR} ${GTest_DIR}/include)
 
-add_executable(convex_hull_tests pointInPolygonTests.cpp ../src/Edge.cpp ../src/PointInPolygon.cpp )
+add_executable(convex_hull_tests convexHullTests.cpp ../src/FastConvexHull.cpp ../src/Edge.cpp ../src/PointInPolygon.cpp)
+add_executable(point_in_polygon_tests pointInPolygonTests.cpp ../src/Edge.cpp ../src/PointInPolygon.cpp)
+
 target_link_libraries(convex_hull_tests GTest::GTest GTest::Main)
+target_link_libraries(point_in_polygon_tests GTest::GTest GTest::Main)
 
