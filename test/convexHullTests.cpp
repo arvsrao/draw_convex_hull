@@ -26,8 +26,8 @@ TEST(ConvexHull, GenerationTest) {
 
 TEST(ConvexHull, convexityTest) {
   for (int idx = 0; idx < hull.size(); idx++) {
-    auto vec1 = hull[idx + 1 % hull.size()] - hull[idx];
-    auto vec2 = hull[idx + 2 % hull.size()] - hull[idx + 1 % hull.size()];
+    auto vec1 = hull[(idx + 1) % hull.size()] - hull[idx];
+    auto vec2 = hull[(idx + 2) % hull.size()] - hull[(idx + 1) % hull.size()];
 
     ASSERT_TRUE(isNegativeFrame(vec1, vec2));
   }
