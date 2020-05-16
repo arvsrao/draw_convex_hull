@@ -4,31 +4,7 @@
 #include <QGraphicsView>
 #include <QtWidgets/QApplication>
 #include <include/CLI11.hpp>
-#include <random>
-
-Points generatePoints(const int numPoints, const double maxRange) {
-  std::random_device rd;
-  std::default_random_engine generator(rd());
-
-  std::normal_distribution<double> distribution(0.0, maxRange / 2.0);
-
-  Points retVal;
-  int i = 0;
-  while (i < numPoints) {
-    auto pt = Vector2D<int>(distribution(generator), distribution(generator));
-
-    if (pt.length() > maxRange / 4.0 && pt.length() < 3.0 * maxRange / 4.0) {
-      retVal.push_back(pt);
-      i++;
-    }
-  }
-
-  // remove duplicates
-  auto last = std::unique(retVal.begin(), retVal.end());
-  retVal.erase(last, retVal.end());
-
-  return retVal;
-}
+#include <include/util/simulation.cpp>
 
 void display(Points &_points, Points &hull, QGraphicsScene *scene) {
   QVector<QPointF> points;
@@ -70,7 +46,7 @@ int main(int argc, char *argv[]) {
     return app.exit(e);
   }
 
-  auto _points = generatePoints(num_points, 250.0);
+  auto _points = simulation::generatePoints(num_points, 250.0);
 
   // Instantiate convex hull calculator
   ConvexHull *convexHullCalculator = convexHullFactory(fast_bool, _points);
