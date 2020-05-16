@@ -19,6 +19,7 @@ endif()
 
 include_directories(../ ${GTest_DIR} ${GTest_DIR}/include)
 
+# one executable for each test suite
 add_executable(convex_hull_tests
         convexHullTests.cpp
         ../src/FastConvexHull.cpp
