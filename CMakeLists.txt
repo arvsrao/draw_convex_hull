@@ -15,8 +15,19 @@ set(CMAKE_AUTORCC ON)
 
 include_directories(include)
 
-add_executable(draw_convex_hull_demo src/main.cpp src/Edge.cpp src/FastConvexHull.cpp src/SlowConvexHull.cpp)
-add_executable(concaveHull src/concave2DPointCloud.cpp src/Edge.cpp src/FastConvexHull.cpp src/PointInPolygon.cpp)
+add_executable(draw_convex_hull_demo
+        src/main.cpp
+        src/Edge.cpp
+        src/FastConvexHull.cpp
+        src/SlowConvexHull.cpp
+        )
+
+add_executable(concaveHull
+        src/concave2DPointCloud.cpp
+        src/Edge.cpp
+        src/FastConvexHull.cpp
+        src/PointInPolygon.cpp
+        )
 
 target_link_libraries(draw_convex_hull_demo Qt5::Widgets)
 target_link_libraries(concaveHull Qt5::Widgets)

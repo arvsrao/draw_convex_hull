@@ -1,43 +1,34 @@
 #include <gtest/gtest.h>
 #include <include/PointInPolygon.h>
 
-#include <random>
+#include <include/util/simulation.cpp>
 
 #include "include/FastConvexHull.h"
 
-Points generatePoints(const int numPoints, const double maxRange) {
-  std::random_device rd;
-  std::default_random_engine generator(rd());
+// Generate 100 points check that points are all within computed hull
+Points punkt_menge = simulation::generatePoints(100, 300.0);
 
-  std::normal_distribution<double> distribution(0.0, maxRange / 2.0);
+auto convexHullCalculator = FastConvexHull(punkt_menge);
+auto hull                 = convexHullCalculator.getConvexHull();
 
-  Points retVal;
-  int i = 0;
-  while (i < numPoints) {
-    auto pt = Vector2D<int>(distribution(generator), distribution(generator));
-
-    if (pt.length() > maxRange / 4.0 && pt.length() < 3.0 * maxRange / 4.0) {
-      retVal.push_back(pt);
-      i++;
-    }
-  }
-
-  // remove duplicates
-  auto last = std::unique(retVal.begin(), retVal.end());
-  retVal.erase(last, retVal.end());
-
-  return retVal;
+bool isNegativeFrame(const Point &p, const Point &q) {
+  return (p.x * q.y - q.x * p.y) < 0;
 }
 
 TEST(ConvexHull, GenerationTest) {
-  // Generate 100 points check that points are all within computed hull
-  Points punkt_menge = generatePoints(100, 300.0);
+  PointInPolygon pipCalc = PointInPolygon(hull);
 
-  auto convexHullCalculator = FastConvexHull(punkt_menge);
-  auto hull                 = convexHullCalculator.getConvexHull();
-  PointInPolygon pipCalc    = PointInPolygon(hull);
-
+  // all points in the cloud should be inside or on the hull
   for (auto &punkt : punkt_menge) {
     ASSERT_TRUE(pipCalc.pointInPolygon(punkt));
+  }
+}
+
+TEST(ConvexHull, convexityTest) {
+  for (int idx = 0; idx < hull.size(); idx++) {
+    auto vec1 = hull[idx + 1 % hull.size()] - hull[idx];
+    auto vec2 = hull[idx + 2 % hull.size()] - hull[idx + 1 % hull.size()];
+
+    ASSERT_TRUE(isNegativeFrame(vec1, vec2));
   }
 }
