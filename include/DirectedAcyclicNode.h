@@ -18,7 +18,7 @@ class DirectedAcyclicNode {
   DirectedAcyclicNode* getChild(unsigned index);
   NodeChildrenType getChildren();
 
-  ~DirectedAcyclicNode();
+  virtual ~DirectedAcyclicNode();
 };
 
 #include <impl/DirectedAcyclicNode.cpp>
