@@ -33,6 +33,9 @@ add_executable(point_in_polygon_tests
         ../src/PointInPolygon.cpp
         )
 
+add_executable(dag_tests DirectedAcyclicGraphTests.cpp)
+
 target_link_libraries(convex_hull_tests GTest::GTest GTest::Main)
 target_link_libraries(point_in_polygon_tests GTest::GTest GTest::Main)
+target_link_libraries(dag_tests GTest::GTest GTest::Main)
 
