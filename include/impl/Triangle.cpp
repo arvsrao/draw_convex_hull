@@ -5,14 +5,29 @@ Triangle<T>::Triangle(PointType _a, PointType _b, PointType _c)
     : a(_a), b(_b), c(_c) {}
 
 template <typename T, unsigned N>
-class nextNonZeroIndexClosure {
+class nonZeroElementsIterator {
  public:
   std::array<T, N> mu;
-  nextNonZeroIndexClosure(std::array<T, N>& _mu) : mu(_mu) {}
 
-  unsigned operator()(unsigned idx) {
-    while (!mu[idx]) idx++;
-    return idx;
+  // the index of the most recent encountered nonzero element of mu.
+  int currentIdx;
+
+  // the largest index of all nonzero entries of mu
+  int endIdx;
+
+  nonZeroElementsIterator(std::array<T, N>& _mu)
+      : mu(_mu), currentIdx(-1), endIdx(N - 1) {
+    while (!mu[endIdx]) --endIdx;
+  }
+
+  // has iterator reached the last nonzero element
+  bool end() { return currentIdx >= endIdx; }
+
+  T operator()() {
+    if (end()) return mu[endIdx];
+    currentIdx++;
+    while (!mu[currentIdx]) currentIdx++;
+    return mu[currentIdx];
   }
 };
 
@@ -41,16 +56,17 @@ bool Triangle<T>::containsPoint(PointType& p) {
                          (a.y - p.y) * (c.x - p.x) - (a.x - p.x) * (c.y - p.y),
                          (b.x - p.x) * (c.y - p.y) - (b.y - p.y) * (c.x - p.x)};
 
-  // ignore zero coordinates. when encountered increment index
-  auto nextNonZeroIndex = nextNonZeroIndexClosure<T, M>(mu);
-  unsigned idx1         = nextNonZeroIndex(0);
-  unsigned idx2         = nextNonZeroIndex(idx1 + 1);
+  // compare only nonzero entries of mu
+  auto nextNonZeroElement = nonZeroElementsIterator<T, M>(mu);
+  T curr                  = nextNonZeroElement();
+  T next;
 
-  while (idx1 < M && idx2 < M) {
-    if (mu[idx1] > 0 != mu[idx2] > 0) return false;
-    idx1 = idx2;
-    idx2 = nextNonZeroIndex(idx1 + 1);
+  while (!nextNonZeroElement.end()) {
+    next = nextNonZeroElement();
+    if (curr > 0 != next > 0) return false;
+    curr = next;
   }
+
   return true;
 }
 
