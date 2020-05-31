@@ -25,8 +25,7 @@ bool FastConvexHull::isNegativeFrame(const Point &p, const Point &q) const {
 // do three points make a right turn.
 // same as asking if 'end' lies to the right of
 // segment start-middle
-bool FastConvexHull::rightTurn(const Point &start, const Point &middle,
-                               const Point &end) const {
+bool FastConvexHull::rightTurn(const Point &start, const Point &middle, const Point &end) const {
   return isNegativeFrame(middle - start, end - start);
 }
 
@@ -57,15 +56,13 @@ FastConvexHull::FastConvexHull(Points &points) {
   std::sort(points.begin(), points.end(), Point::compareVector2D);
   hull_points = _convexHull(points);
 
-  std::sort(points.begin(), points.end(), [&](Point &a, Point &b) {
-    return (a.x == b.x) ? a.y > b.y : a.x > b.x;
-  });
+  std::sort(points.begin(), points.end(),
+            [&](Point &a, Point &b) { return (a.x == b.x) ? a.y > b.y : a.x > b.x; });
   auto bottom_hull = _convexHull(points);
 
   // concatenate top and bottom hulls.
   hull_points.pop_back();
-  hull_points.insert(hull_points.end(), bottom_hull.begin(),
-                     bottom_hull.end() - 1);
+  hull_points.insert(hull_points.end(), bottom_hull.begin(), bottom_hull.end() - 1);
 }
 
 FastConvexHull::~FastConvexHull() {}

@@ -1,8 +1,7 @@
 #include <array>
 
 template <typename T>
-Triangle<T>::Triangle(PointType _a, PointType _b, PointType _c)
-    : a(_a), b(_b), c(_c) {}
+Triangle<T>::Triangle(PointType _a, PointType _b, PointType _c) : a(_a), b(_b), c(_c) {}
 
 template <typename T, unsigned N>
 class nonZeroElementsIterator {
@@ -15,8 +14,7 @@ class nonZeroElementsIterator {
   // the largest index of all nonzero entries of mu
   int endIdx;
 
-  nonZeroElementsIterator(std::array<T, N>& _mu)
-      : mu(_mu), currentIdx(-1), endIdx(N - 1) {
+  nonZeroElementsIterator(std::array<T, N>& _mu) : mu(_mu), currentIdx(-1), endIdx(N - 1) {
     while (!mu[endIdx]) --endIdx;
   }
 
@@ -25,8 +23,7 @@ class nonZeroElementsIterator {
 
   T operator()() {
     if (end()) return mu[endIdx];
-    currentIdx++;
-    while (!mu[currentIdx]) currentIdx++;
+    while (!mu[++currentIdx]) continue;
     return mu[currentIdx];
   }
 };
@@ -57,14 +54,13 @@ bool Triangle<T>::containsPoint(PointType& p) {
                          (b.x - p.x) * (c.y - p.y) - (b.y - p.y) * (c.x - p.x)};
 
   // compare only nonzero entries of mu
+  T firstNonZeroElement, next;
   auto nextNonZeroElement = nonZeroElementsIterator<T, M>(mu);
-  T curr                  = nextNonZeroElement();
-  T next;
+  firstNonZeroElement     = nextNonZeroElement();
 
   while (!nextNonZeroElement.end()) {
     next = nextNonZeroElement();
-    if (curr > 0 != next > 0) return false;
-    curr = next;
+    if (firstNonZeroElement > 0 != next > 0) return false;
   }
 
   return true;

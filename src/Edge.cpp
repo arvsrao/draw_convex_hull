@@ -9,8 +9,6 @@ bool Edge::segmentCompare(Edge &e, Edge &f) {
   return p.arccos() < q.arccos();
 }
 
-bool Edge::operator==(const Edge &rhs) const {
-  return (rhs.start == start) && (rhs.end == end);
-}
+bool Edge::operator==(const Edge &rhs) const { return (rhs.start == start) && (rhs.end == end); }
 
 Edge::~Edge() {}

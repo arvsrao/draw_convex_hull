@@ -24,8 +24,7 @@ inline bool SlowConvexHull::isNegativeFrame(const Point &p, const Point &q) {
   return (p.x * q.y - q.x * p.y) < 0;
 }
 
-bool SlowConvexHull::allOnRight(const Point &p, const Point &q,
-                                const Points &points) {
+bool SlowConvexHull::allOnRight(const Point &p, const Point &q, const Points &points) {
   for (size_t i = 0; i < points.size(); i++) {
     auto v = points[i];
     if (q == v || p == v) continue;
@@ -37,8 +36,7 @@ bool SlowConvexHull::allOnRight(const Point &p, const Point &q,
 Points SlowConvexHull::sortClockwise(std::vector<Edge> &segments) {
   std::sort(segments.begin(), segments.end(), Edge::segmentCompare);
   Points pts;
-  for (unsigned long i = 0; i < segments.size(); i++)
-    pts.push_back(segments[i].start);
+  for (unsigned long i = 0; i < segments.size(); i++) pts.push_back(segments[i].start);
 
   // remove duplicates.
   //    auto last = unique(pts.begin(), pts.end());

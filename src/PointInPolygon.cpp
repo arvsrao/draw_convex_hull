@@ -56,16 +56,15 @@ bool PointInPolygon::pointInPolygon(Point &p, RayType &ray_direction) {
   return (bool)(intersection_num % 2);
 }
 
-Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b,
-                                           RayType &ray) {
+Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
   // compute normal of a && b.
   //
   //      [ r.x  r.y  r.length ]       [ b.length a.length r.length ]
   //  det [ a.x  a.y  a.length ] = det [ b.y      a.y      r.y      ]
   //      [ b.x  b.y  b.length ]       [ b.x      a.x      r.x      ]
-  double side        = det2D(a, b);
-  double determinant = b.length() * det2D(ray, a) + a.length() * det2D(b, ray) +
-                       ray.length() * side;
+  double side = det2D(a, b);
+  double determinant =
+      b.length() * det2D(ray, a) + a.length() * det2D(b, ray) + ray.length() * side;
 
   // determinant == 0  iff ray is in the plane determined by (a, ||a||) and
   // (b, ||b||). Furthermore, the ray emanating from point p intersects
@@ -101,8 +100,7 @@ Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
     // At this point we know that the edge lies either completely to the
     // left or the right of point p. Does ray point in the direction
     // of and into the edge?
-    if (det2D(ray, point_to_start) != 0 || ray.dot(point_to_start) < 0)
-      return None;
+    if (det2D(ray, point_to_start) != 0 || ray.dot(point_to_start) < 0) return None;
 
     // only possibility left is that the ray emanating from point p intersects
     // the edge completely. Which is inconclusive.

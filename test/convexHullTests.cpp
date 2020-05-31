@@ -11,9 +11,7 @@ Points punkt_menge = simulation::generatePoints(100, 300.0);
 auto convexHullCalculator = FastConvexHull(punkt_menge);
 auto hull                 = convexHullCalculator.getConvexHull();
 
-bool isNegativeFrame(const Point &p, const Point &q) {
-  return (p.x * q.y - q.x * p.y) < 0;
-}
+bool isNegativeFrame(const Point &p, const Point &q) { return (p.x * q.y - q.x * p.y) < 0; }
 
 TEST(ConvexHull, GenerationTest) {
   PointInPolygon pipCalc = PointInPolygon(hull);
