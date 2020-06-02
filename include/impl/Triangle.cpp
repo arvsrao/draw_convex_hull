@@ -22,7 +22,8 @@ class nonZeroElementsIterator {
   bool end() { return currentIdx >= endIdx; }
 
   T operator()() {
-    if (!end()) while (!mu[++currentIdx]) continue;
+    if (!end())
+      while (!mu[++currentIdx]) continue;
     return mu[currentIdx];
   }
 };
