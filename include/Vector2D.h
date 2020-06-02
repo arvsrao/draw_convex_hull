@@ -41,6 +41,6 @@ class Vector2D {
 // template for specific types. Otherwise one gets an "undefined reference to"
 // linking error. See
 // https://bytefreaks.net/programming-2/c/c-undefined-reference-to-templated-class-function
-#include "include/impl/Vector2D.cpp"
+#include <impl/Vector2D.cpp>
 
 #endif  // DRAW_CONVEX_HULL_VECTOR2D_H

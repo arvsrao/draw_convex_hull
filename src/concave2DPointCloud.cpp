@@ -6,11 +6,10 @@
 #include <random>
 #include <set>
 
-Points polyLine = {
-    Point(-44, -134), Point(-67, -112), Point(-105, -39), Point(-64, 42),
-    Point(5, 96),     Point(93, 47),    Point(121, -15),  Point(99, -83),
-    Point(85, -106),  Point(61, -60),   Point(63, -14),   Point(34, 40),
-    Point(-14, 22),   Point(-46, -33),  Point(-22, -65),  Point(-33, -107)};
+Points polyLine = {Point(-44, -134), Point(-67, -112), Point(-105, -39), Point(-64, 42),
+                   Point(5, 96),     Point(93, 47),    Point(121, -15),  Point(99, -83),
+                   Point(85, -106),  Point(61, -60),   Point(63, -14),   Point(34, 40),
+                   Point(-14, 22),   Point(-46, -33),  Point(-22, -65),  Point(-33, -107)};
 
 Points generatePoints(const int numPoints, const double maxRange) {
   std::random_device rd;
@@ -44,13 +43,11 @@ void display(Points &_points, Points &hull, QGraphicsScene *scene) {
   for (unsigned long i = 0; i < _points.size(); i++)
     points.append(QPointF(_points[i].x, _points[i].y));
 
-  for (long i = 0; i < points.size(); i++)
-    scene->addEllipse(points[i].x(), points[i].y(), 1, 1);
+  for (long i = 0; i < points.size(); i++) scene->addEllipse(points[i].x(), points[i].y(), 1, 1);
 
   // print the given shape boundary
   for (unsigned long i = 0; i < polyLine.size(); i += 1)
-    scene->addLine(polyLine[i].x, polyLine[i].y,
-                   polyLine[(i + 1) % polyLine.size()].x,
+    scene->addLine(polyLine[i].x, polyLine[i].y, polyLine[(i + 1) % polyLine.size()].x,
                    polyLine[(i + 1) % polyLine.size()].y, QPen(Qt::green, 2));
 
   // print the computed convex hull

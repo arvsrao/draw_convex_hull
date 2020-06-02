@@ -13,8 +13,7 @@ void display(Points &_points, Points &hull, QGraphicsScene *scene) {
   for (unsigned long i = 0; i < _points.size(); i++)
     points.append(QPointF(_points[i].x, _points[i].y));
 
-  for (long i = 0; i < points.size(); i++)
-    scene->addEllipse(points[i].x(), points[i].y(), 1, 1);
+  for (long i = 0; i < points.size(); i++) scene->addEllipse(points[i].x(), points[i].y(), 1, 1);
 
   for (unsigned long i = 0; i < hull.size(); i += 1)
     scene->addLine(hull[i].x, hull[i].y, hull[(i + 1) % hull.size()].x,
@@ -32,13 +31,11 @@ int main(int argc, char *argv[]) {
   CLI::App app{"Convell Hull Demo"};
 
   int num_points = 0;
-  app.add_option("--num", num_points, "number of points to generate")
-      ->required();
+  app.add_option("--num", num_points, "number of points to generate")->required();
 
   bool fast_bool = true;
-  app.add_option(
-      "--fast", fast_bool,
-      "'true' for n*log(n) implementation of convex hull generation");
+  app.add_option("--fast", fast_bool,
+                 "'true' for n*log(n) implementation of convex hull generation");
 
   try {
     app.parse(argc, argv);

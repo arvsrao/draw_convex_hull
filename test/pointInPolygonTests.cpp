@@ -10,8 +10,7 @@ TEST(PointInPolygon, AngleMeasureTest) {
   Point start = Point(-1, -1);
 
   std::cout << "\n\n";
-  std::cout << ray.arccos() << " " << end.arccos() << " " << start.arccos()
-            << "\n";
+  std::cout << ray.arccos() << " " << end.arccos() << " " << start.arccos() << "\n";
 
   double num = -0.99014577103682988;
   std::cout << "acos(-0.99014577103682988) = " << std::acos(num);
@@ -47,12 +46,12 @@ TEST(PointInPolygon, TriangleTest) {
   }
 
   // check that non-vertex points on the boundary are detected
-  Point point_in_edge = Point((triangle[1].x + triangle[2].x) / 2,
-                              (triangle[1].y + triangle[2].y) / 2);
-  RayType ray         = RayType(1, 0);
+  Point point_in_edge =
+      Point((triangle[1].x + triangle[2].x) / 2, (triangle[1].y + triangle[2].y) / 2);
+  RayType ray = RayType(1, 0);
 
-  Intersection crossing_type = pointInTriangleCalc.edgeIntersect(
-      point_in_edge, ray, pointInTriangleCalc.boundary_curve[1]);
+  Intersection crossing_type =
+      pointInTriangleCalc.edgeIntersect(point_in_edge, ray, pointInTriangleCalc.boundary_curve[1]);
 
   ASSERT_TRUE(crossing_type == OnEdge);
 }
@@ -72,10 +71,10 @@ TEST(PointInPolygon, Collinearity) {
   ASSERT_TRUE(left_crossing_type == None);
   ASSERT_TRUE(right_crossing_type == None);
 
-  left_crossing_type = pointInTriangleCalc.edgeIntersect(
-      left_of_edge, ray_in_edge, pointInTriangleCalc.boundary_curve[1]);
-  right_crossing_type = pointInTriangleCalc.edgeIntersect(
-      right_of_edge, ray_in_edge, pointInTriangleCalc.boundary_curve[1]);
+  left_crossing_type  = pointInTriangleCalc.edgeIntersect(left_of_edge, ray_in_edge,
+                                                         pointInTriangleCalc.boundary_curve[1]);
+  right_crossing_type = pointInTriangleCalc.edgeIntersect(right_of_edge, ray_in_edge,
+                                                          pointInTriangleCalc.boundary_curve[1]);
 
   ASSERT_TRUE(left_crossing_type == Degenerate);
   ASSERT_TRUE(right_crossing_type == None);
@@ -100,8 +99,8 @@ std::vector<Point> polyLine = {
 PointInPolygon pipCalc = PointInPolygon(polyLine);
 
 TEST(PointInPolygon, PointsNotInShape) {
-  std::vector<Point> pointsNotInShape = {Point(-7, -15), Point(-3, -14),
-                                         Point(14, -14), Point(17, -15)};
+  std::vector<Point> pointsNotInShape = {Point(-7, -15), Point(-3, -14), Point(14, -14),
+                                         Point(17, -15)};
 
   for (auto &wp : pointsNotInShape) {
     ASSERT_FALSE(pipCalc.pointInPolygon(wp));

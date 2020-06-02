@@ -52,8 +52,7 @@ Vector2D<T> Vector2D<T>::rotate(double theta) const {
   double sin_theta = std::sin(theta);
   double cos_theta = std::cos(theta);
 
-  return Vector2D<double>(cos_theta * x - sin_theta * y,
-                          sin_theta * x + cos_theta * y);
+  return Vector2D<double>(cos_theta * x - sin_theta * y, sin_theta * x + cos_theta * y);
 }
 
 template <typename T>

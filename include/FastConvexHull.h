@@ -17,8 +17,7 @@ class FastConvexHull : public ConvexHull {
 
   Points _convexHull(const Points &points);
 
-  inline bool rightTurn(const Point &start, const Point &middle,
-                        const Point &end) const;
+  inline bool rightTurn(const Point &start, const Point &middle, const Point &end) const;
 };
 
 #endif  // DRAW_CONVEX_HULL_FASTCONVEXHULL_H
