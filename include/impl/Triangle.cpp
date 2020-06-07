@@ -1,7 +1,15 @@
 #include <array>
 
 template <typename T>
-Triangle<T>::Triangle(PointType _a, PointType _b, PointType _c) : a(_a), b(_b), c(_c) {}
+Triangle<T>::Triangle(PointTypeRef _a, PointTypeRef _b, PointTypeRef _c)
+    : he(nullptr), a(_a), b(_b), c(_c) {}
+
+template <typename T>
+Triangle<T>::Triangle(HalfEdge<T>* _he) : he(_he), a(nullptr), b(nullptr), c(nullptr) {
+  if (he) a = he->getOrigin();
+  if (a && he->getNext()) b = he->getNext()->getOrigin();
+  if (b) c = he->getNext()->getNext()->getOrigin();
+}
 
 template <typename T, unsigned N>
 class nonZeroElementsIterator {
@@ -49,9 +57,9 @@ bool Triangle<T>::containsPoint(PointType& p) {
   //                  [ a.y - p.y  b.y - p.y   c.y -p.y ]
 
   const unsigned M    = 3;
-  std::array<T, M> mu = {(a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x),
-                         (a.y - p.y) * (c.x - p.x) - (a.x - p.x) * (c.y - p.y),
-                         (b.x - p.x) * (c.y - p.y) - (b.y - p.y) * (c.x - p.x)};
+  std::array<T, M> mu = {(a->x - p.x) * (b->y - p.y) - (a->y - p.y) * (b->x - p.x),
+                         (a->y - p.y) * (c->x - p.x) - (a->x - p.x) * (c->y - p.y),
+                         (b->x - p.x) * (c->y - p.y) - (b->y - p.y) * (c->x - p.x)};
 
   // compare only nonzero entries of mu
   T firstNonZeroElement, next;
@@ -67,4 +75,7 @@ bool Triangle<T>::containsPoint(PointType& p) {
 }
 
 template <typename T>
-Triangle<T>::~Triangle() {}
+Triangle<T>::~Triangle() {
+  // Triangle owns all the half edges of the face.
+  delete he;
+}

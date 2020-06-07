@@ -7,7 +7,8 @@ using Point        = Vector2D<int>;
 using HalfEdgeRef  = HalfEdge<int> *;
 using TriangleType = Triangle<int>;
 
-TriangleType triangle = TriangleType(Point(-4, -4), Point(0, 4), Point(4, 0));
+std::array<Point, 3> nodes = {Point(-4, -4), Point(0, 4), Point(4, 0)};
+TriangleType triangle      = TriangleType(&nodes[0], &nodes[1], &nodes[2]);
 
 TEST(DAG, CreationTest) {
   auto dag           = new DirectedAcyclicNode<TriangleType>(triangle);
@@ -58,24 +59,12 @@ TEST(DAG, TriangulationRepresentationTest) {
   bd->setTwin(db);
 
   // (-1,0) is in the left face
-  std::array<HalfEdgeRef, 2> faces = {ab, bc};
-  auto query_point                 = Point(-1, 0);
+  std::array<TriangleType, 2> faces = {TriangleType(ab), TriangleType(bc)};
+  auto query_point                  = Point(-1, 0);
 
-  auto a                 = faces[0]->getOrigin();
-  auto b                 = faces[0]->getNext()->getOrigin();
-  auto c                 = faces[0]->getNext()->getNext()->getOrigin();
-  TriangleType triangle1 = TriangleType(*a, *b, *c);
+  ASSERT_TRUE(faces[0].containsPoint(query_point));
+  ASSERT_FALSE(faces[1].containsPoint(query_point));
 
-  ASSERT_TRUE(triangle1.containsPoint(query_point));
-
-  a                      = faces[1]->getOrigin();
-  b                      = faces[1]->getNext()->getOrigin();
-  c                      = faces[1]->getNext()->getNext()->getOrigin();
-  TriangleType triangle2 = TriangleType(*a, *b, *c);
-
-  ASSERT_FALSE(triangle2.containsPoint(query_point));
-
-  // delete triangulation. delete the half edges first, then the underlying vertices.
-  for (auto &face : faces) delete face;
+  // delete triangulation. delete the faces, which own the half edges, then the underlying vertices.
   for (auto &vertex : vertices) delete vertex;
 }
