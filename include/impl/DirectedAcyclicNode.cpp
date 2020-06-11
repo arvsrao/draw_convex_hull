@@ -25,4 +25,6 @@ std::vector<DirectedAcyclicNode<T>*> DirectedAcyclicNode<T>::getChildren() {
 }
 
 template <typename T>
-DirectedAcyclicNode<T>::~DirectedAcyclicNode() {}
+DirectedAcyclicNode<T>::~DirectedAcyclicNode() {
+  for (auto& child : children) delete child;
+}
