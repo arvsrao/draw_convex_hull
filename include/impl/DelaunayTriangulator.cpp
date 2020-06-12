@@ -1,9 +1,9 @@
 #include <algorithm>
 
 DelaunayTriangulator::DelaunayTriangulator(const VertexRefSeq& vertexSeq) : {
-  VertexRef p0 =
-      std::max_element(vertexSeq.begin(), vertexSeq.end(),
-                       [&](VertexRef& a, VertexRef& b) { return (a->y < b->y) || (a->x < b->x); });
+  VertexRef p0 = std::max_element(
+      vertexSeq.begin(), vertexSeq.end(),
+      [&](VertexRef& a, VertexRef& b) { return (a->y == b->y) ? (a->x < b->x) : (a->y < b->y); });
   points.push_back(p0);
 
   // shuffle vertexSeq

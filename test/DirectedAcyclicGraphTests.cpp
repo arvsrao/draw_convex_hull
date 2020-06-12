@@ -18,7 +18,7 @@ TEST(DAG, CreationTest) {
   ASSERT_EQ(expected_data.b, triangle.b);
   ASSERT_EQ(expected_data.c, triangle.c);
 
-  ASSERT_TRUE(dag->getChildren().empty());
+  ASSERT_FALSE(dag->hasChildren());
 }
 
 TEST(DAG, PointInTriangleTest) {

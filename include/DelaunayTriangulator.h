@@ -9,8 +9,8 @@
 
 class DelaunayTriangulator {
  public:
-  using VertexRef      = Vector2D<double>*;
-  using VertexRefSeq     = std::vector<VertexRef>;
+  using VertexRef         = Vector2D<double>*;
+  using VertexRefSeq      = std::vector<VertexRef>;
   using FaceType          = Triangle<double>;
   using TriangulationType = DirectedAcyclicNode<FaceType>;
 
