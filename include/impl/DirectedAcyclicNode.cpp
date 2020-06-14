@@ -1,6 +1,6 @@
 
 template <typename T>
-const unsigned DirectedAcyclicNode<T>::MAX_CHILDREN = 3;
+const uint8_t DirectedAcyclicNode<T>::MAX_CHILDREN = 3;
 
 template <typename T>
 DirectedAcyclicNode<T>::DirectedAcyclicNode(T& _data) : data(_data) {

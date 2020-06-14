@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <include/Triangle.h>
 
 DelaunayTriangulator::DelaunayTriangulator(const VertexRefSeq& vertexSeq) : {
   VertexRef p0 = std::max_element(
@@ -14,11 +15,19 @@ DelaunayTriangulator::DelaunayTriangulator(const VertexRefSeq& vertexSeq) : {
     // TODO: is it enough to compare the pointers?
     if (vertex != p0) points.push_back(vertex);
   }
+
+  triangulation.push_back(new Triangle(p0, Left, Right));
+
+  dag = new DirectedAcyclicNode(triangulation[0]);
+
 }
 
-DelaunayTriangulator::operator() { dag = new DirectedAcyclicNode(); }
+std::vector<FaceType*> DelaunayTriangulator::operator() {
+  return triangulation;
+}
 
 DelaunayTriangulator::~DelaunayTriangulator() {
   for (auto& vertex : points) delete vertex;
+  for (auto& face : triangulation) delete face;
   delete dag;
 }

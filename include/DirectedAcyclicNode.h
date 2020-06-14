@@ -6,7 +6,7 @@
 template <typename T = int>
 class DirectedAcyclicNode {
  public:
-  static const unsigned MAX_CHILDREN;
+  static const uint8_t MAX_CHILDREN;
 
   using DirectedAcyclicNodeRef = DirectedAcyclicNode<T>*;
   using ChildContainerType     = std::array<DirectedAcyclicNodeRef, MAX_CHILDREN>;
