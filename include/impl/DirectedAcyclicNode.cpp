@@ -1,14 +1,16 @@
 
+#include <DirectedAcyclicNode.h>
+
 template <typename T>
 const uint8_t DirectedAcyclicNode<T>::MAX_CHILDREN = 3;
 
 template <typename T>
-DirectedAcyclicNode<T>::DirectedAcyclicNode(T& _data) : data(_data) {
+DirectedAcyclicNode<T>::DirectedAcyclicNode(T* _data) : data(_data) {
   children = {nullptr, nullptr, nullptr};
 }
 
 template <typename T>
-void DirectedAcyclicNode<T>::addChild(T& _data) {
+void DirectedAcyclicNode<T>::addChild(T* _data) {
   children.push_back(new DirectedAcyclicNode<T>(_data));
 }
 
@@ -18,7 +20,7 @@ DirectedAcyclicNode<T>* DirectedAcyclicNode<T>::getChild(unsigned index) {
 }
 
 template <typename T>
-T DirectedAcyclicNode<T>::getData() {
+T* DirectedAcyclicNode<T>::getFace() {
   return data;
 }
 
@@ -39,4 +41,9 @@ DirectedAcyclicNode<T>::getChildren() {
 template <typename T>
 DirectedAcyclicNode<T>::~DirectedAcyclicNode() {
   for (auto& child : children) delete child;
+}
+
+template <typename T>
+bool DirectedAcyclicNode<T>::hasFace() {
+  return data != nullptr;
 }

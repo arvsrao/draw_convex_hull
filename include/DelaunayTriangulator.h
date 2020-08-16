@@ -3,25 +3,35 @@
 
 #include <DirectedAcyclicNode.h>
 #include <Triangle.h>
-#include <Vector2D.h>
+#include <Vertex.h>
 
 #include <vector>
 
 class DelaunayTriangulator {
  public:
-  using VertexRef         = Vector2D<double>*;
-  using VertexRefSeq      = std::vector<VertexRef>;
-  using FaceType          = Triangle<double>;
-  using TriangulationType = std::vector<FaceType*>;
+  using VertexRef               = Vertex*;
+  using VertexRefSeq            = std::vector<VertexRef>;
+  using FaceType                = Triangle;
+  using FaceTypeRef             = FaceType*;
+  using DirectedAcyclicNodeType = DirectedAcyclicNode<FaceType>;
+  using DirectedAcyclicNodeRef  = DirectedAcyclicNode<FaceType>*;
+  using TriangulationType       = std::vector<FaceType*>;
+  using ChildContainerType =
+      std::array<DirectedAcyclicNodeRef, DirectedAcyclicNodeType::MAX_CHILDREN>;
 
+  DelaunayTriangulator();
   DelaunayTriangulator(VertexRefSeq& vertexSeq);
   ~DelaunayTriangulator();
 
-  TriangulationType& operator()();
+  /**
+   * Triangulate the point set given at the time of construction. Along the way
+   * a point location data stucture is built ( DelaunayTriangulator.dag ). At the end
+   * all face references (pointsrs) in the leafs of dag should be copied into
+   * DelaunayTriangulator.triangulation.
+   */
+  void operator()();
 
  private:
-  enum SymbolicPoints { Left = -1, Right = -2 };
-
   // points to be triangulated
   VertexRefSeq points;
 
@@ -30,7 +40,22 @@ class DelaunayTriangulator {
 
   // a point location data structure with pointers
   // into the triangulation
-  DirectedAcyclicNode<FaceType> dag;
+  DirectedAcyclicNodeRef dag;
+
+  // pointer to the next Vertex to add to the triangulation
+  VertexRef current;
+
+ private:
+  /**
+   * @param vertexRef
+   * @returng a reference to the face (triangle) that contains the point.
+   * It, the triangle, is always in a leaf node.
+   */
+  FaceTypeRef locatePoint(VertexRef vertexRef);
+
+  bool isEdgeIllegal(HalfEdge* halfEdge, VertexRef p);
+
+  ChildContainerType splitFace(FaceTypeRef face, VertexRef p);
 };
 
 #include <impl/DelaunayTriangulator.cpp>
