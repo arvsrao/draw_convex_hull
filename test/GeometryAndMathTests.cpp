@@ -20,7 +20,11 @@ TEST(Matrix, determinantTest) {
   auto squareMatrixA           = SquareMatrix<2, double>(arrayA);
   EXPECT_EQ(squareMatrixA.det(), 17.0);
 
-  std::array<double, 9> arrayB = {6.0, 1.0, 1.0, 4.0, -2.0, 5.0, 2.0, 8.0, 7.0};
+  std::array<double, 9> arrayB = {
+      6.0, 1.0,  1.0,  //
+      4.0, -2.0, 5.0,  //
+      2.0, 8.0,  7.0   //
+  };
 
   auto squareMatrixB = SquareMatrix<3, double>(arrayB);
   EXPECT_EQ(squareMatrixB.det(), -306.0);

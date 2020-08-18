@@ -1,4 +1,5 @@
 #include <include/PointInPolygon.h>
+#include <include/SquareMatrix.h>
 
 #include <algorithm>  // std::max
 
@@ -57,14 +58,14 @@ bool PointInPolygon::pointInPolygon(Point &p, RayType &ray_direction) {
 }
 
 Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
-  // compute normal of a && b.
-  //
-  //      [ r.x  r.y  r.length ]       [ b.length a.length r.length ]
-  //  det [ a.x  a.y  a.length ] = det [ b.y      a.y      r.y      ]
-  //      [ b.x  b.y  b.length ]       [ b.x      a.x      r.x      ]
-  double side = det2D(a, b);
-  double determinant =
-      b.length() * det2D(ray, a) + a.length() * det2D(b, ray) + ray.length() * side;
+  // determine on what side of plane { a , b } ray is.
+  double side               = det2D(a, b);
+  std::array<double, 9> mat = {
+      ray.x, ray.y, ray.length(),  //
+      a.x,   a.y,   a.length(),    //
+      b.x,   b.y,   b.length(),    //
+  };
+  double determinant = SquareMatrix<3, double>(mat).det();
 
   // determinant == 0  iff ray is in the plane determined by (a, ||a||) and
   // (b, ||b||). Furthermore, the ray emanating from point p intersects
