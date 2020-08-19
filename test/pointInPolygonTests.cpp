@@ -82,8 +82,8 @@ TEST(PointInPolygon, Collinearity) {
 
 TEST(PointInPolygon, isRayInSectorTest) {
   // test isRayInSector function
-  RayType a   = RayType(-0.70046, -0.71368);
-  RayType b   = RayType(-0.406138, 0.913811);
+  RayType a   = RayType(-0.406138, 0.913811);
+  RayType b   = RayType(-0.70046, -0.71368);
   RayType ray = RayType(1.0, 0.0);
 
   ASSERT_FALSE(PointInPolygon::isRayInSector(a, b, ray));

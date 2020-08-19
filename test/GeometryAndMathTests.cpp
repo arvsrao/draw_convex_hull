@@ -3,16 +3,16 @@
 #include <include/SquareMatrix.h>
 
 TEST(Matrix, creationTest) {
-  std::array<double, 4> inital_array = {2.0, 0.0, 0.0, 1.0};
-  auto a                             = RowColumnMatrix<2, 2, double>(inital_array);
+  std::array<double, 4> arrayA = {2.0, 0.0, 0.0, 1.0};
+  auto a                       = RowColumnMatrix<2, 2, double>(arrayA);
 
-  EXPECT_EQ(a(0, 0), inital_array[0]);
-  EXPECT_EQ(a(0, 1), inital_array[1]);
-  EXPECT_EQ(a(1, 0), inital_array[2]);
-  EXPECT_EQ(a(1, 1), inital_array[3]);
+  EXPECT_EQ(a(0, 0), arrayA[0]);
+  EXPECT_EQ(a(0, 1), arrayA[1]);
+  EXPECT_EQ(a(1, 0), arrayA[2]);
+  EXPECT_EQ(a(1, 1), arrayA[3]);
 
-  auto minor = a.getSubMatrix(0, 0);
-  EXPECT_EQ(minor(0, 0), inital_array[3]);
+  auto subMatrix = a.getSubMatrix(0, 0);
+  EXPECT_EQ(subMatrix(0, 0), arrayA[3]);
 }
 
 TEST(Matrix, determinantTest) {

@@ -62,7 +62,7 @@ Intersection PointInPolygon::handleCollinear(RayType &a, RayType &b, RayType &ra
   if (a.dot(b) <= 0) return OnEdge;
 
   // If the angle between a & ray is zero, the ray points into the edge.
-  return (ray.dot(a) < ray.length() * a.length()) ? None : Degenerate;
+  return (ray.dot(a) + 1e-6 < ray.length() * a.length()) ? None : Degenerate;
 }
 
 Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
