@@ -59,7 +59,6 @@ bool PointInPolygon::pointInPolygon(Point &p, RayType &ray_direction) {
 
 Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
   // determine on what side of plane { a , b } ray is.
-  double side               = det2D(a, b);
   std::array<double, 9> mat = {
       ray.x, ray.y, ray.length(),  //
       a.x,   a.y,   a.length(),    //
@@ -77,8 +76,7 @@ Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray)
   // condition is dependent on whether normal to the plane spanned by
   // (a.x, a.y, a.length) & (b.x, b.y, b.length) points into +z/-z half of R^3.
   // side can't be 0, because collinearity is handled earlier.
-  double coeff = (side > 0) ? determinant : -1 * determinant;
-  return (coeff < 0) ? Proper : None;
+  return (determinant < 0) ? Proper : None;
 }
 
 Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
@@ -93,8 +91,9 @@ Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
   //   * if ray crosses the edge it intersects the whole edge
   //.    which is DEGENERATE
   //.  * if ray doesn't intersection return None
-  // 2. if the point in the edge simply return OnEdge.
-  if (det2D(point_to_start, point_to_end) == 0) {
+  // 2. if the point is in the edge simply return OnEdge.
+  double orientation = det2D(point_to_start, point_to_end);
+  if (orientation == 0) {
     // p lies on edge including possibly the endpoints.
     if (point_to_start.dot(point_to_end) <= 0) return OnEdge;
 
@@ -108,6 +107,8 @@ Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
     return Degenerate;
   }
 
+  // swap point_to_start, point_to_end if the orientation is negative
+  if (orientation < 0) std::swap(point_to_start, point_to_end);
   return isRayInSector(point_to_start, point_to_end, ray);
 }
 
