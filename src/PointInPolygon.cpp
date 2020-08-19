@@ -61,14 +61,8 @@ Intersection PointInPolygon::handleCollinear(RayType &a, RayType &b, RayType &ra
   // p lies on edge including possibly the endpoints.
   if (a.dot(b) <= 0) return OnEdge;
 
-  // At this point we know that the edge lies either completely to the
-  // left or the right of point p. Does ray point in the direction
-  // of and into the edge?
-  if (det2D(ray, a) != 0 || ray.dot(a) < 0) return None;
-
-  // only possibility left is that the ray emanating from point p intersects
-  // the edge completely. Which is inconclusive.
-  return Degenerate;
+  // If the angle between a & ray is zero, the ray points into the edge.
+  return (ray.dot(a) < ray.length() * a.length()) ? None : Degenerate;
 }
 
 Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
