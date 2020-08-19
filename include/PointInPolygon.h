@@ -22,6 +22,8 @@ class PointInPolygon {
 
   static Intersection isRayInSector(RayType &a, RayType &b, RayType &ray);
 
+  static Intersection handleCollinear(RayType &a, RayType &b, RayType &ray);
+
   Intersection edgeIntersect(Point &p, RayType &ray, Edge &edge);
 
   virtual ~PointInPolygon();
