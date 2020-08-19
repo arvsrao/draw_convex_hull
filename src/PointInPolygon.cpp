@@ -1,4 +1,5 @@
 #include <include/PointInPolygon.h>
+#include <include/SquareMatrix.h>
 
 #include <algorithm>  // std::max
 
@@ -56,15 +57,22 @@ bool PointInPolygon::pointInPolygon(Point &p, RayType &ray_direction) {
   return (bool)(intersection_num % 2);
 }
 
+Intersection PointInPolygon::handleCollinear(RayType &a, RayType &b, RayType &ray) {
+  // p lies on edge including possibly the endpoints.
+  if (a.dot(b) <= 0) return OnEdge;
+
+  // If the angle between a & ray is zero, the ray points into the edge.
+  return (ray.dot(a) < ray.length() * a.length()) ? None : Degenerate;
+}
+
 Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray) {
-  // compute normal of a && b.
-  //
-  //      [ r.x  r.y  r.length ]       [ b.length a.length r.length ]
-  //  det [ a.x  a.y  a.length ] = det [ b.y      a.y      r.y      ]
-  //      [ b.x  b.y  b.length ]       [ b.x      a.x      r.x      ]
-  double side = det2D(a, b);
-  double determinant =
-      b.length() * det2D(ray, a) + a.length() * det2D(b, ray) + ray.length() * side;
+  // determine on what side of plane { a , b } ray is.
+  std::array<double, 9> mat = {
+      ray.x, ray.y, ray.length(),  //
+      a.x,   a.y,   a.length(),    //
+      b.x,   b.y,   b.length(),    //
+  };
+  double determinant = SquareMatrix<3, double>(mat).det();
 
   // determinant == 0  iff ray is in the plane determined by (a, ||a||) and
   // (b, ||b||). Furthermore, the ray emanating from point p intersects
@@ -76,8 +84,7 @@ Intersection PointInPolygon::isRayInSector(RayType &a, RayType &b, RayType &ray)
   // condition is dependent on whether normal to the plane spanned by
   // (a.x, a.y, a.length) & (b.x, b.y, b.length) points into +z/-z half of R^3.
   // side can't be 0, because collinearity is handled earlier.
-  double coeff = (side > 0) ? determinant : -1 * determinant;
-  return (coeff < 0) ? Proper : None;
+  return (determinant < 0) ? Proper : None;
 }
 
 Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
@@ -91,22 +98,13 @@ Intersection PointInPolygon::edgeIntersect(Point &p, RayType &ray, Edge &edge) {
   // 1. p is on either side of the edge.
   //   * if ray crosses the edge it intersects the whole edge
   //.    which is DEGENERATE
-  //.  * if ray doesn't intersection return None
-  // 2. if the point in the edge simply return OnEdge.
-  if (det2D(point_to_start, point_to_end) == 0) {
-    // p lies on edge including possibly the endpoints.
-    if (point_to_start.dot(point_to_end) <= 0) return OnEdge;
+  //.  * if ray doesn't intersect return None
+  // 2. if the point is in the edge simply return OnEdge.
+  double orientation = det2D(point_to_start, point_to_end);
+  if (orientation == 0) return handleCollinear(point_to_start, point_to_end, ray);
 
-    // At this point we know that the edge lies either completely to the
-    // left or the right of point p. Does ray point in the direction
-    // of and into the edge?
-    if (det2D(ray, point_to_start) != 0 || ray.dot(point_to_start) < 0) return None;
-
-    // only possibility left is that the ray emanating from point p intersects
-    // the edge completely. Which is inconclusive.
-    return Degenerate;
-  }
-
+  // swap point_to_start, point_to_end if the orientation is negative
+  if (orientation < 0) std::swap(point_to_start, point_to_end);
   return isRayInSector(point_to_start, point_to_end, ray);
 }
 
