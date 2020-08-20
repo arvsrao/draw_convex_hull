@@ -34,7 +34,7 @@ bool Vertex::operator!=(const Vertex &rhs) const { return !(*this == rhs); }
 
 bool Vertex::operator<(const Vertex &rhs) const { return !(*this >= rhs); }
 
-bool Vertex::operator>=(const Vertex &rhs) const {   return (*this > rhs) || (*this == rhs); }
+bool Vertex::operator>=(const Vertex &rhs) const { return (*this > rhs) || (*this == rhs); }
 
 bool Vertex::operator>(const Vertex &rhs) const {
   if (isSymbol() || rhs.isSymbol())

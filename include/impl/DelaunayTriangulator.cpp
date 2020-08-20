@@ -77,7 +77,6 @@ DelaunayTriangulator::ChildContainerType DelaunayTriangulator::splitFace(FaceTyp
   HalfEdge* ab = face->he;
   HalfEdge* bc = ab->getNext();
   HalfEdge* ca = bc->getNext();
-
 }
 
 DelaunayTriangulator::~DelaunayTriangulator() {

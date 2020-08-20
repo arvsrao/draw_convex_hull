@@ -20,7 +20,6 @@ class TriangleWithOneSymbolicPoint : public Triangle {
   HalfEdgeRef halfEdgeContainsPoint(VertexRef p) override;
 
   ~TriangleWithOneSymbolicPoint();
-
 };
 
 #include <impl/TriangleWithOneSymbolicPoint.cpp>
