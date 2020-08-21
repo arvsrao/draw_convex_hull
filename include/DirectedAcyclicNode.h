@@ -1,22 +1,31 @@
 #ifndef DRAW_CONVEX_HULL_DIRECTACYCLICNODE_H
 #define DRAW_CONVEX_HULL_DIRECTACYCLICNODE_H
 
-#include <vector>
+#include <Vertex.h>
+
+#include <array>
 
 template <typename T = int>
 class DirectedAcyclicNode {
  public:
-  using NodeChildrenType = std::vector<DirectedAcyclicNode<T>*>;
+  static const uint8_t MAX_CHILDREN;
 
-  T data;
-  NodeChildrenType children;
+  using DirectedAcyclicNodeRef = DirectedAcyclicNode<T>*;
+  using ChildContainerType     = std::array<DirectedAcyclicNodeRef, MAX_CHILDREN>;
 
-  DirectedAcyclicNode(T _data);
+  T* data;
+  ChildContainerType children;
 
-  void addChild(T _data);
-  T getData();
-  DirectedAcyclicNode* getChild(unsigned index);
-  NodeChildrenType getChildren();
+  DirectedAcyclicNode(T* _data);
+
+  void addChild(T* _data);
+
+  T* getFace();
+  bool hasFace();
+
+  DirectedAcyclicNodeRef getChild(unsigned index);
+  bool hasChildren();
+  ChildContainerType getChildren();
 
   virtual ~DirectedAcyclicNode();
 };

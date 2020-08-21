@@ -4,6 +4,9 @@
 template <typename T>
 class Vector2D {
  public:
+  using RingType   = T;
+  using VectorType = Vector2D<T>;
+
   T x, y;
 
   Vector2D();
@@ -26,7 +29,14 @@ class Vector2D {
 
   bool operator!=(const Vector2D &rhs) const;
 
-  Vector2D operator-(const Vector2D &rhs) const;
+  // lexical ordering
+  bool operator>(const Vector2D &rhs) const;
+
+  bool operator>=(const Vector2D &rhs) const;
+
+  bool operator<(const Vector2D &rhs) const;
+
+  virtual Vector2D operator-(const Vector2D &rhs) const;
 
   Vector2D operator+(const Vector2D &rhs) const;
 

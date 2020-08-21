@@ -73,6 +73,21 @@ bool Vector2D<T>::operator==(const Vector2D<T> &rhs) const {
 }
 
 template <typename T>
+bool Vector2D<T>::operator>(const Vector2D<T> &rhs) const {
+  return (y == rhs.y) ? x < rhs.x : y > rhs.y;
+}
+
+template <typename T>
+bool Vector2D<T>::operator>=(const Vector2D<T> &rhs) const {
+  return (*this > rhs) || (*this == rhs);
+}
+
+template <typename T>
+bool Vector2D<T>::operator<(const Vector2D<T> &rhs) const {
+  return !(*this >= rhs);
+}
+
+template <typename T>
 bool Vector2D<T>::operator!=(const Vector2D<T> &rhs) const {
   return !(*this == rhs);
 }
