@@ -6,9 +6,9 @@
 class Vertex : public Vector2D<double> {
  public:
   // None : the vertex is not a symbolic point
-  // Left : the vertex is symbolic and to the left of all other vertices
-  // Right : the vertex is symbolic and to the right of all other vertices
-  enum Symbol { None = 0, Left = -1, Right = +1 };
+  // Left : the vertex is symbolic and to the left && above all other vertices
+  // Right : the vertex is symbolic and to the right && below all other vertices
+  enum Symbol { Left = +1, None = 0, Right = -1 };
 
   Vertex();
   Vertex(Symbol _symbol);

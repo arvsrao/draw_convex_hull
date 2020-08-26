@@ -1,4 +1,5 @@
 
+#include <SquareMatrix.h>
 #include <TriangleWithOneSymbolicPoint.h>
 
 TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint()
@@ -21,15 +22,20 @@ bool TriangleWithOneSymbolicPoint::containsPoint(const VertexRef p) const {
 
   // swap if a is not higher/greater than b
   if (*a < *b) std::swap(a, b);
-  Vertex eta  = *b - *a;
-  auto q      = static_cast<Vertex::VectorType>(*p) - *a;
-  double side = eta.x * q.y - q.x * eta.y;
+
+  std::array<Vertex::RingType, NUM_VERTICES_PER_FACE * NUM_VERTICES_PER_FACE> mat{
+      p->x, p->y, 1,  //
+      a->x, a->y, 1,  //
+      b->x, b->x, 1,  //
+  };
+
+  auto side = SquareMatrix<NUM_VERTICES_PER_FACE, Vertex::RingType>(mat).det();
 
   switch (symbol) {
     case Vertex::Left:
-      return side < 0 && (p < a) && (p > b);
+      return side < 0 && (*p < *a) && (*p > *b);
     case Vertex::Right:
-      return side > 0 && (a > p) && (b < p);
+      return side > 0 && (*p < *a) && (*p > *b);
     default:
       return false;  // possibly identify if p is in the edge
   }

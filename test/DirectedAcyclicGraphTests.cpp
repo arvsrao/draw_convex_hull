@@ -1,4 +1,3 @@
-#include <DelaunayTriangulator.h>
 #include <TriangleWithOneSymbolicPoint.h>
 #include <gtest/gtest.h>
 #include <include/DirectedAcyclicNode.h>
@@ -28,12 +27,12 @@ TEST(DAG, PointInTriangleTest) {
   Vertex edge_point_bc = Vertex(2, 2);   // on edge {bc}
   Vertex edge_point_ac = Vertex(0, 2);   // on edge {ac}
 
-  ASSERT_TRUE(triangle.containsPoint(inside_point));
-  ASSERT_FALSE(triangle.containsPoint(outside_point));
+  ASSERT_TRUE(triangle.containsPoint(&inside_point));
+  ASSERT_FALSE(triangle.containsPoint(&outside_point));
 
-  ASSERT_TRUE(triangle.containsPoint(edge_point_ab));
-  ASSERT_TRUE(triangle.containsPoint(edge_point_bc));
-  ASSERT_TRUE(triangle.containsPoint(edge_point_ac));
+  ASSERT_TRUE(triangle.containsPoint(&edge_point_ab));
+  ASSERT_TRUE(triangle.containsPoint(&edge_point_bc));
+  ASSERT_TRUE(triangle.containsPoint(&edge_point_ac));
 }
 
 // build a half edge description of a small triangulation
@@ -62,8 +61,8 @@ TEST(DAG, TriangulationRepresentationTest) {
   std::array<Triangle *, 2> faces = {new Triangle(ab), new Triangle(bc)};
   auto query_point                = Vertex(-1, 0);
 
-  ASSERT_TRUE(faces[0]->containsPoint(query_point));
-  ASSERT_FALSE(faces[1]->containsPoint(query_point));
+  ASSERT_TRUE(faces[0]->containsPoint(&query_point));
+  ASSERT_FALSE(faces[1]->containsPoint(&query_point));
 
   // delete triangulation. delete the faces, which own the half edges, then the underlying vertices.
   for (auto &face : faces) delete face;
@@ -75,9 +74,16 @@ TEST(DAG, SymbolicPointsTest) {
   auto right_symbol_point = Vertex(Vertex::Symbol::Right);
 
   auto origin                      = Vertex(0.0, 0.0);
-  auto end                         = Vertex(0.0, 10.0);
-  auto point_inside_left_triangle  = Vertex(-10.0, 0.0);
-  auto point_inside_right_triangle = Vertex(10.0, 0.0);
+  auto end                         = Vertex(5.0, 5.0);
+  auto point_inside_left_triangle  = Vertex(-2.0, 4.0);
+  auto point_inside_right_triangle = Vertex(6.0, 4.0);
+
+  // The Left Symbolic should be greater than any other point.
+  // The Right Symbolic should be less than any other point.
+  ASSERT_GT(left_symbol_point, end);
+  ASSERT_GT(left_symbol_point, origin);
+  ASSERT_LT(right_symbol_point, end);
+  ASSERT_LT(right_symbol_point, origin);
 
   Triangle *triangle_with_left_symbolic_point =
       new TriangleWithOneSymbolicPoint(&left_symbol_point, &origin, &end);
@@ -85,11 +91,7 @@ TEST(DAG, SymbolicPointsTest) {
   Triangle *triangle_with_right_symbolic_point =
       new TriangleWithOneSymbolicPoint(&right_symbol_point, &origin, &end);
 
-  ASSERT_TRUE(triangle_with_left_symbolic_point->containsPoint(point_inside_left_triangle));
-  ASSERT_TRUE(triangle_with_right_symbolic_point->containsPoint(point_inside_right_triangle));
-  ASSERT_FALSE(triangle_with_right_symbolic_point->containsPoint(point_inside_left_triangle));
-
-  ASSERT_FALSE(left_symbol_point == end);
-  ASSERT_TRUE(left_symbol_point < end);
-  ASSERT_FALSE(right_symbol_point < end);
+  ASSERT_TRUE(triangle_with_left_symbolic_point->containsPoint(&point_inside_left_triangle));
+  ASSERT_TRUE(triangle_with_right_symbolic_point->containsPoint(&point_inside_right_triangle));
+  ASSERT_FALSE(triangle_with_right_symbolic_point->containsPoint(&point_inside_left_triangle));
 }
