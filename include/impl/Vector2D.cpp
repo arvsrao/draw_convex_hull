@@ -74,7 +74,7 @@ bool Vector2D<T>::operator==(const Vector2D<T> &rhs) const {
 
 template <typename T>
 bool Vector2D<T>::operator>(const Vector2D<T> &rhs) const {
-  return (y > rhs.y) || (y == rhs.y &&  rhs.x < x);
+  return (y > rhs.y) || (y == rhs.y && rhs.x < x);
 }
 
 template <typename T>
