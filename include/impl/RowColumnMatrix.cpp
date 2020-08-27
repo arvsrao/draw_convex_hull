@@ -1,5 +1,3 @@
-#include <RowColumnMatrix.h>
-
 #include <array>
 #include <stdexcept>
 

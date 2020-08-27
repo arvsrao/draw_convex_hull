@@ -1,11 +1,23 @@
 #include <array>
 
-template <typename T>
-Triangle<T>::Triangle(PointTypeRef _a, PointTypeRef _b, PointTypeRef _c)
-    : he(nullptr), a(_a), b(_b), c(_c) {}
+const uint8_t Triangle::NUM_VERTICES_PER_FACE = 3;
 
-template <typename T>
-Triangle<T>::Triangle(HalfEdge<T>* _he) : he(_he), a(nullptr), b(nullptr), c(nullptr) {
+Triangle::Triangle(VertexRef _a, VertexRef _b, VertexRef _c) : a(_a), b(_b), c(_c) {
+  he             = new HalfEdge(a);
+  HalfEdgeRef bc = new HalfEdge(b);
+  HalfEdgeRef ca = new HalfEdge(c);
+
+  he->setPrev(ca);
+  he->setNext(bc);
+
+  bc->setPrev(he);
+  bc->setNext(ca);
+
+  ca->setPrev(bc);
+  ca->setNext(he);
+}
+
+Triangle::Triangle(HalfEdgeRef _he) : he(_he), a(nullptr), b(nullptr), c(nullptr) {
   if (he) a = he->getOrigin();
   if (a && he->getNext()) b = he->getNext()->getOrigin();
   if (b) c = he->getNext()->getNext()->getOrigin();
@@ -36,8 +48,7 @@ class nonZeroElementsIterator {
   }
 };
 
-template <typename T>
-bool Triangle<T>::containsPoint(PointType& p) {
+bool Triangle::containsPoint(const VertexRef p) const {
   // compute barycentric coordinates, \eta, of point p relative to this
   // triangle. As a triple barycentric coordinates would be a multiple of
   // any vector normal to the plane determined by
@@ -56,14 +67,14 @@ bool Triangle<T>::containsPoint(PointType& p) {
   //       \mu = det  [ a.x - p.x  b.x - p.x   c.x -p.x ]
   //                  [ a.y - p.y  b.y - p.y   c.y -p.y ]
 
-  const unsigned M    = 3;
-  std::array<T, M> mu = {(a->x - p.x) * (b->y - p.y) - (a->y - p.y) * (b->x - p.x),
-                         (a->y - p.y) * (c->x - p.x) - (a->x - p.x) * (c->y - p.y),
-                         (b->x - p.x) * (c->y - p.y) - (b->y - p.y) * (c->x - p.x)};
+  std::array<Vertex::RingType, NUM_VERTICES_PER_FACE> mu = {
+      (a->x - p->x) * (b->y - p->y) - (a->y - p->y) * (b->x - p->x),
+      (a->y - p->y) * (c->x - p->x) - (a->x - p->x) * (c->y - p->y),
+      (b->x - p->x) * (c->y - p->y) - (b->y - p->y) * (c->x - p->x)};
 
   // compare only nonzero entries of mu
-  T firstNonZeroElement, next;
-  auto nextNonZeroElement = nonZeroElementsIterator<T, M>(mu);
+  Vertex::RingType firstNonZeroElement, next;
+  auto nextNonZeroElement = nonZeroElementsIterator<Vertex::RingType, NUM_VERTICES_PER_FACE>(mu);
   firstNonZeroElement     = nextNonZeroElement();
 
   while (!nextNonZeroElement.end()) {
@@ -74,8 +85,16 @@ bool Triangle<T>::containsPoint(PointType& p) {
   return true;
 }
 
-template <typename T>
-Triangle<T>::~Triangle() {
+Triangle::HalfEdgeRef Triangle::halfEdgeContainsPoint(const VertexRef p) {
+  HalfEdgeRef cur = he;
+  for (int i = 0; i < NUM_VERTICES_PER_FACE; i++) {
+    if (cur->isVertexInHalfEdge(p)) return cur;
+    cur = cur->getNext();
+  }
+  return nullptr;
+}
+
+Triangle::~Triangle() {
   // Triangle owns all the half edges of the face.
   delete he;
 }
