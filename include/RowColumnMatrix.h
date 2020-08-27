@@ -12,7 +12,7 @@ class RowColumnMatrix {
   using RingType = R;
   using DataType = std::array<RingType, N * M>;
 
-  RowColumnMatrix(DataType &mat);
+  explicit RowColumnMatrix(DataType &mat);
   RingType operator()(int row, int col);
 
   RowColumnMatrix<N - 1, M - 1, RingType> getSubMatrix(int row, int col);

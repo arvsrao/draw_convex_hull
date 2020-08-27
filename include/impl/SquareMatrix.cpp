@@ -32,16 +32,6 @@ template <typename R>
 SquareMatrix<2, R>::SquareMatrix(RowColumnMatrix<2, 2, R> &&mat)
     : RowColumnMatrix<2, 2, R>(mat.data) {}
 
-template <uint N, typename R>
-SquareMatrix<N - 1, R> SquareMatrix<N, R>::getSubMatrix(int row, int col) {
-  return CoDimensionOneSubMatrix(RowColumnMatrix<N, N, R>::getSubMatrix(row, col));
-}
-
-template <typename R>
-SquareMatrix<1, R> SquareMatrix<2, R>::getSubMatrix(int row, int col) {
-  return CoDimensionOneSubMatrix(RowColumnMatrix<2, 2, R>::getSubMatrix(row, col));
-}
-
 template <typename R>
 R SquareMatrix<1, R>::det() {
   return this->data[0];
@@ -57,7 +47,7 @@ R SquareMatrix<N, R>::det() {
   R result = static_cast<R>(0);
 
   for (int j = 0; j < N; j++) {
-    R minor_0j = this->getSubMatrix(0, j).det();
+    R minor_0j = CoDimensionOneSubMatrix(this->getSubMatrix(0, j)).det();
     R c        = (j % 2 == 0 ? 1.0 : -1.0) * this->operator()(0, j);
     result += c * minor_0j;
   }

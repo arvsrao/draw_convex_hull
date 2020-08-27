@@ -19,7 +19,6 @@ class SquareMatrix : public RowColumnMatrix<N, N, R> {
   explicit SquareMatrix(RowColumnMatrix<N, N, R> &mat);
   explicit SquareMatrix(RowColumnMatrix<N, N, R> &&mat);
 
-  CoDimensionOneSubMatrix getSubMatrix(int row, int col);
   R det();
 };
 
@@ -27,10 +26,8 @@ template <typename R>
 class SquareMatrix<2, R> : public RowColumnMatrix<2, 2, R> {
  public:
   explicit SquareMatrix(std::array<R, 4> &mat);
-  SquareMatrix(RowColumnMatrix<2, 2, R> &mat);
+  explicit SquareMatrix(RowColumnMatrix<2, 2, R> &mat);
   explicit SquareMatrix(RowColumnMatrix<2, 2, R> &&mat);
-
-  SquareMatrix<1, R> getSubMatrix(int row, int col);
 
   R det();
 };
@@ -38,9 +35,9 @@ class SquareMatrix<2, R> : public RowColumnMatrix<2, 2, R> {
 template <typename R>
 class SquareMatrix<1, R> : public RowColumnMatrix<1, 1, R> {
  public:
-  SquareMatrix(std::array<R, 1> &mat);
-  SquareMatrix(RowColumnMatrix<1, 1, R> &mat);
-  SquareMatrix(RowColumnMatrix<1, 1, R> &&mat);
+  explicit SquareMatrix(std::array<R, 1> &mat);
+  explicit SquareMatrix(RowColumnMatrix<1, 1, R> &mat);
+  explicit SquareMatrix(RowColumnMatrix<1, 1, R> &&mat);
 
   R det();
 };

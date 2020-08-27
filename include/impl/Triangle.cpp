@@ -46,7 +46,7 @@ class nonZeroElementsIterator {
   }
 };
 
-bool Triangle::containsPoint(const VertexRef p) const {
+bool Triangle::containsPoint(VertexRef p) const {
   // compute barycentric coordinates, \eta, of point p relative to this
   // triangle. As a triple barycentric coordinates would be a multiple of
   // any vector normal to the plane determined by
@@ -83,7 +83,7 @@ bool Triangle::containsPoint(const VertexRef p) const {
   return true;
 }
 
-Triangle::HalfEdgeRef Triangle::halfEdgeContainsPoint(const VertexRef p) {
+Triangle::HalfEdgeRef Triangle::halfEdgeContainsPoint(VertexRef p) {
   HalfEdgeRef cur = he;
   for (int i = 0; i < NUM_VERTICES_PER_FACE; i++) {
     if (cur->isVertexInHalfEdge(p)) return cur;

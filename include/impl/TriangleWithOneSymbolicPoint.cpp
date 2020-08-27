@@ -1,5 +1,4 @@
 #include <SquareMatrix.h>
-#include <TriangleWithOneSymbolicPoint.h>
 
 TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint()
     : Triangle(nullptr, nullptr, nullptr), symbol(Vertex::Symbol::None) {}
