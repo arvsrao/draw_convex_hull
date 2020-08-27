@@ -1,6 +1,4 @@
 
-#include <Vertex.h>
-
 Vertex::Vertex() : Vector2D<double>(0, 0), symbol(Vertex::Symbol::None) {}
 
 Vertex::Vertex(Vertex::Symbol _symbol) : Vector2D<double>(0, 0), symbol(_symbol) {}

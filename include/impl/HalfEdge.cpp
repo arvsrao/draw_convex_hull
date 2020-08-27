@@ -1,6 +1,4 @@
 
-#include <HalfEdge.h>
-
 HalfEdge::HalfEdge(VertexRef _origin)
     : origin(_origin), next(nullptr), prev(nullptr), twin(nullptr) {}
 

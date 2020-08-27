@@ -1,5 +1,3 @@
-#include <Triangle.h>
-
 #include <array>
 
 const uint8_t Triangle::NUM_VERTICES_PER_FACE = 3;

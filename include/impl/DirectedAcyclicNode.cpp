@@ -1,6 +1,4 @@
 
-#include <DirectedAcyclicNode.h>
-
 template <typename T>
 const uint8_t DirectedAcyclicNode<T>::MAX_CHILDREN = 3;
 

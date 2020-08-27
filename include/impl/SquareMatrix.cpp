@@ -1,6 +1,4 @@
 
-#include <SquareMatrix.h>
-
 template <uint N, typename R>
 SquareMatrix<N, R>::SquareMatrix(std::array<R, N * N> &mat) : RowColumnMatrix<N, N, R>(mat) {}
 

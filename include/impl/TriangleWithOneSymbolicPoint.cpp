@@ -1,4 +1,3 @@
-
 #include <SquareMatrix.h>
 #include <TriangleWithOneSymbolicPoint.h>
 
