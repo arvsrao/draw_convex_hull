@@ -35,8 +35,10 @@ bool Vertex::operator<(const Vertex &rhs) const { return !(*this >= rhs); }
 bool Vertex::operator>=(const Vertex &rhs) const { return (*this > rhs) || (*this == rhs); }
 
 bool Vertex::operator>(const Vertex &rhs) const {
-  if (isSymbol() || rhs.isSymbol())
-    return symbol > rhs.symbol;
+  if (getSymbol() == Right || rhs.getSymbol() == Left)
+    return false;
+  else if (getSymbol() == Left || rhs.getSymbol() == Right)
+    return true;
   else
     return VectorType::operator>(rhs);
 }

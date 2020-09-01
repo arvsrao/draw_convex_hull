@@ -2,7 +2,6 @@
 #include <gtest/gtest.h>
 #include <include/DirectedAcyclicNode.h>
 #include <include/HalfEdge.h>
-#include <include/Triangle.h>
 #include <include/Vertex.h>
 
 using HalfEdgeRef = HalfEdge *;

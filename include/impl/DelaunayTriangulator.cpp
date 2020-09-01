@@ -30,13 +30,13 @@ DelaunayTriangulator::DelaunayTriangulator(VertexRefSeq& vertexSeq) {
   }
 
   triangulation.push_back(new TriangleWithTwoSymbolicPoints(points[0], points[2], points[1]));
-  dag = new DirectedAcyclicNode<FaceType>(triangulation[0]);
+  dag = new DirectedAcyclicNodeType(triangulation[0]);
 
   current = *points.begin();
-  std::advance(current, FaceType::NUM_VERTICES_PER_FACE);
+  std::advance(current, Triangle::NUM_VERTICES_PER_FACE);
 }
 
-DelaunayTriangulator::FaceTypeRef DelaunayTriangulator::locatePoint(
+DelaunayTriangulator::TriangleRef DelaunayTriangulator::locatePoint(
     const DelaunayTriangulator::VertexRef vertexRef) {
   auto cur = dag;
   while (cur->hasChildren()) {
@@ -54,7 +54,7 @@ void DelaunayTriangulator::operator()() {
   // insert points into triangulation
   while (current != *points.end()) {
     // locate the triangle to split
-    FaceTypeRef face = locatePoint(current);
+    TriangleRef face = locatePoint(current);
     splitFace(face, current);
 
     current++;
@@ -64,15 +64,43 @@ void DelaunayTriangulator::operator()() {
   // DelaunayTriangulator.triangulation.
 }
 
-bool DelaunayTriangulator::isEdgeIllegal(HalfEdge* halfEdge, VertexRef c) {
-  VertexRef a = halfEdge->getOrigin();
-  VertexRef b = halfEdge->getNext()->getNext()->getOrigin();
-  VertexRef d = halfEdge->getTwin()->getNext()->getNext()->getOrigin();
+/** By the time this function is called the c */
+bool DelaunayTriangulator::isEdgeLegal(HalfEdgeRef he, VertexRef s) {
+  // if there is no triangle on the other side of the edge then no point in
+  // flipping it. Just return false. Conveniently, this covers the case when an
+  // edge has two symbolic endpoints.
+  auto twinRef = he->getTwin();
+  if (!twinRef || !twinRef->getTriangleRef()) return true;
 
-  return false;
+  // c can be symbolic. it is the vertex of the half edge in the neighboring triangle
+  VertexRef c = twinRef->getNext()->getNext()->getOrigin();
+  if (c->isSymbol() || he->hasSymbol()) {
+    return c->getSymbol() <
+           std::min(he->getOrigin()->getSymbol(), twinRef->getOrigin()->getSymbol());
+  } else
+    return isEdgeLegalNoSymbols(he, s);
 }
 
-DelaunayTriangulator::ChildContainerType DelaunayTriangulator::splitFace(FaceTypeRef face,
+/**
+ * The predicate for the case there no are symbolic points in either the half edge or
+ * the adjacent triangle.
+ * */
+bool DelaunayTriangulator::isEdgeLegalNoSymbols(HalfEdgeRef he, VertexRef s) {
+  TriangleRef triangleRef = he->getTwin()->getTriangleRef();
+  VertexRef a = triangleRef->a, b = triangleRef->b, c = triangleRef->c;
+
+  std::array<Vertex::RingType, 16> mat = {
+      s->x, s->y, (s->x) * (s->x) + (s->y) * (s->y), 1,  //
+      a->x, a->y, (a->x) * (a->x) + (a->y) * (a->y), 1,  //
+      b->x, b->y, (b->x) * (b->x) + (b->y) * (b->y), 1,  //
+      c->x, c->y, (c->x) * (c->x) + (c->y) * (c->y), 1,  //
+  };
+
+  // correct the determinant for triangle orientation
+  return triangleRef->getOrientation() * SquareMatrix<4, Vertex::RingType>(mat).det() < 0;
+}
+
+DelaunayTriangulator::ChildContainerType DelaunayTriangulator::splitFace(TriangleRef face,
                                                                          VertexRef p) {
   HalfEdge* ab = face->he;
   HalfEdge* bc = ab->getNext();

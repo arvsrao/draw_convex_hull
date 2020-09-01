@@ -1,4 +1,5 @@
 #include <SquareMatrix.h>
+#include <TriangleWithOneSymbolicPoint.h>
 
 TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint()
     : Triangle(nullptr, nullptr, nullptr), symbol(Vertex::Symbol::None) {}
@@ -13,28 +14,44 @@ Triangle::HalfEdgeRef TriangleWithOneSymbolicPoint::halfEdgeContainsPoint(Triang
 
 // true if the given vertex is to right of edge ab.
 bool TriangleWithOneSymbolicPoint::containsPoint(VertexRef p) const {
-  auto a = he->getOrigin();
-  auto b = he->getNext()->getOrigin();
-
-  // swap if a is not higher/greater than b
-  if (*a < *b) std::swap(a, b);
+  // swap if v is not higher/greater than w
+  VertexRef v = a, w = b;
+  if (*v < *w) std::swap(v, w);
 
   std::array<Vertex::RingType, NUM_VERTICES_PER_FACE * NUM_VERTICES_PER_FACE> mat{
       p->x, p->y, 1,  //
-      a->x, a->y, 1,  //
-      b->x, b->x, 1,  //
+      v->x, v->y, 1,  //
+      w->x, w->x, 1,  //
   };
 
   auto side = SquareMatrix<NUM_VERTICES_PER_FACE, Vertex::RingType>(mat).det();
 
   switch (symbol) {
     case Vertex::Left:
-      return side < 0 && (*p < *a) && (*p > *b);
+      return side < 0 && (*p < *v) && (*p > *w);
     case Vertex::Right:
-      return side > 0 && (*p < *a) && (*p > *b);
+      return side > 0 && (*p < *v) && (*p > *w);
     default:
       return false;  // possibly identify if p is in the edge
   }
+}
+
+void TriangleWithOneSymbolicPoint::setOrientation() {
+  switch (symbol) {
+    case Vertex::Left:
+      orientation = (*a < *b) ? positive : negative;
+      break;
+    case Vertex::Right:
+      orientation = (*a < *b) ? negative : positive;
+      break;
+    default:
+      orientation = unset;  // nothing
+  }
+}
+
+Triangle::Orientation TriangleWithOneSymbolicPoint::getOrientation() {
+  if (orientation == unset) setOrientation();
+  return orientation;
 }
 
 Triangle::ChildrenType TriangleWithOneSymbolicPoint::splitFace(Triangle::VertexRef p) {

@@ -11,11 +11,11 @@ class DelaunayTriangulator {
  public:
   using VertexRef               = Vertex*;
   using VertexRefSeq            = std::vector<VertexRef>;
-  using FaceType                = Triangle;
-  using FaceTypeRef             = FaceType*;
-  using DirectedAcyclicNodeType = DirectedAcyclicNode<FaceType>;
-  using DirectedAcyclicNodeRef  = DirectedAcyclicNode<FaceType>*;
-  using TriangulationType       = std::vector<FaceType*>;
+  using TriangleRef             = Triangle*;
+  using HalfEdgeRef             = HalfEdge*;
+  using DirectedAcyclicNodeType = DirectedAcyclicNode<Triangle>;
+  using DirectedAcyclicNodeRef  = DirectedAcyclicNode<Triangle>*;
+  using TriangulationType       = std::vector<TriangleRef>;
   using ChildContainerType =
       std::array<DirectedAcyclicNodeRef, DirectedAcyclicNodeType::MAX_CHILDREN>;
 
@@ -51,11 +51,12 @@ class DelaunayTriangulator {
    * @returng a reference to the face (triangle) that contains the point.
    * It, the triangle, is always in a leaf node.
    */
-  FaceTypeRef locatePoint(VertexRef vertexRef);
+  TriangleRef locatePoint(VertexRef vertexRef);
 
-  bool isEdgeIllegal(HalfEdge* halfEdge, VertexRef p);
+  bool isEdgeLegal(HalfEdgeRef he, VertexRef s);
+  bool isEdgeLegalNoSymbols(HalfEdgeRef he, VertexRef s);
 
-  ChildContainerType splitFace(FaceTypeRef face, VertexRef p);
+  ChildContainerType splitFace(TriangleRef face, VertexRef p);
 };
 
 #include <impl/DelaunayTriangulator.cpp>

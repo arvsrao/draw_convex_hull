@@ -1,5 +1,6 @@
 
 #include <HalfEdge.h>
+#include <SquareMatrix.h>
 
 HalfEdge::HalfEdge(Vertex::Symbol symbol)
     : origin(nullptr), symbol(symbol), next(nullptr), prev(nullptr), twin(nullptr) {}
@@ -26,17 +27,21 @@ void HalfEdge::setNext(HalfEdge* he) { next = he; }
 
 void HalfEdge::setTwin(HalfEdge* he) { twin = he; }
 
+HalfEdge::TriangleRef HalfEdge::getTriangleRef() const { return triangleRef; }
+
+void HalfEdge::setTriangleRef(HalfEdge::TriangleRef triangleRef) { triangleRef = triangleRef; }
+
 bool HalfEdge::hasSymbol() const { return symbol != Vertex::None; }
 
-bool HalfEdge::isVertexInHalfEdge(HalfEdge::VertexRef vertexRef) {
-  HalfEdge::VertexRef b = next->getNext()->origin;
+bool HalfEdge::isVertexInHalfEdge(HalfEdge::VertexRef b) {
+  HalfEdge::VertexRef a = next->getNext()->origin;
 
-  //     [ origin->x origin->y       1 ]
-  // det [  b->x      b->y           1 ]  = 0 if collinear
-  //     [ vertexRef->x vertexRef->y 1 ]
-  auto det = origin->x * (b->y - vertexRef->y) - origin->y * (b->x - vertexRef->x) +
-             (b->x * vertexRef->y - b->y * vertexRef->x);
-  return det == 0;
+  std::array<Vertex::RingType, 9> mat = {
+      origin->x, origin->y, 1,  //
+      a->x,      a->y,      1,  //
+      b->x,      b->y,      1,  //
+  };
+  return std::abs(SquareMatrix<3, Vertex::RingType>(mat).det()) < 1e-6;
 }
 
 HalfEdge::~HalfEdge() {

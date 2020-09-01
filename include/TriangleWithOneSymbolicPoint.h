@@ -16,13 +16,16 @@ class TriangleWithOneSymbolicPoint : public Triangle {
    * of HalfEdge ab.
    * */
   bool containsPoint(VertexRef p) const override;
+  ChildrenType splitFace(VertexRef p) override;
 
   HalfEdgeRef halfEdgeContainsPoint(VertexRef p) override;
+
+  Orientation getOrientation() override;
 
   ~TriangleWithOneSymbolicPoint() override = default;
 
  private:
-  ChildrenType splitFace(VertexRef p) override;
+  void setOrientation() override;
 };
 
 #include <impl/TriangleWithOneSymbolicPoint.cpp>

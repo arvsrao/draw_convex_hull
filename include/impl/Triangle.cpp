@@ -1,3 +1,5 @@
+#include <include/SquareMatrix.h>
+
 #include <array>
 
 Triangle::Triangle(VertexRef a, VertexRef b, VertexRef c) : a(a), b(b), c(c) {
@@ -13,12 +15,24 @@ Triangle::Triangle(VertexRef a, VertexRef b, VertexRef c) : a(a), b(b), c(c) {
 
   ca->setPrev(bc);
   ca->setNext(he);
+
+  he->setTriangleRef(this);
+  bc->setTriangleRef(this);
+  ca->setTriangleRef(this);
+
+  orientation = unset;
 }
 
 Triangle::Triangle(HalfEdgeRef he) : he(he), a(nullptr), b(nullptr), c(nullptr) {
   if (he) a = he->getOrigin();
   if (a && he->getNext()) b = he->getNext()->getOrigin();
   if (b) c = he->getNext()->getNext()->getOrigin();
+
+  he->setTriangleRef(this);
+  he->getNext()->setTriangleRef(this);
+  he->getNext()->getNext()->setTriangleRef(this);
+
+  orientation = unset;
 }
 
 template <typename T, unsigned N>
@@ -90,6 +104,21 @@ Triangle::HalfEdgeRef Triangle::halfEdgeContainsPoint(VertexRef p) {
     cur = cur->getNext();
   }
   return nullptr;
+}
+
+Triangle::Orientation Triangle::getOrientation() {
+  if (orientation == unset) setOrientation();
+  return orientation;
+}
+
+void Triangle::setOrientation() {
+  std::array<Vertex::RingType, 9> mat = {
+      a->x, a->y, 1,  //
+      b->x, b->y, 1,  //
+      c->x, c->y, 1,  //
+  };
+
+  orientation = SquareMatrix<3, Vertex::RingType>(mat).det() > 0 ? positive : negative;
 }
 
 Triangle::~Triangle() {
