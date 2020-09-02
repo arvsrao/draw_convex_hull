@@ -31,7 +31,6 @@ class Triangle {
 
   virtual ~Triangle();
 
-
  protected:
   Orientation orientation;
   virtual void setOrientation();

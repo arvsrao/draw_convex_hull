@@ -54,3 +54,8 @@ HalfEdge::~HalfEdge() {
     std::cout << "(x_0,y_0)\n";
   delete next;
 }
+
+HalfEdge::TriangleRef HalfEdge::getTriangleRef() const { return triangleRef; }
+void HalfEdge::setTriangleRef(HalfEdge::TriangleRef triangleRef) { triangleRef = triangleRef; }
+
+bool HalfEdge::hasSymbol() const { return symbol != Vertex::None; }

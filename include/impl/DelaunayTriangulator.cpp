@@ -29,7 +29,7 @@ DelaunayTriangulator::DelaunayTriangulator(VertexRefSeq& vertexSeq) {
     if (vertexRef != p0) points.push_back(vertexRef);
   }
 
-  triangulation.push_back(new TriangleWithTwoSymbolicPoints(points[0], points[2], points[1]));
+  triangulation.push_back(new TriangleWithTwoSymbolicPoints(points[2]));
   dag = new DirectedAcyclicNodeType(triangulation[0]);
 
   current = *points.begin();
@@ -69,7 +69,7 @@ bool DelaunayTriangulator::isEdgeLegal(HalfEdgeRef he, VertexRef s) {
   // if there is no triangle on the other side of the edge then no point in
   // flipping it. Just return false. Conveniently, this covers the case when an
   // edge has two symbolic endpoints.
-  auto twinRef = he->getTwin();
+  HalfEdgeRef twinRef = he->getTwin();
   if (!twinRef || !twinRef->getTriangleRef()) return true;
 
   // c can be symbolic. it is the vertex of the half edge in the neighboring triangle
@@ -78,15 +78,14 @@ bool DelaunayTriangulator::isEdgeLegal(HalfEdgeRef he, VertexRef s) {
     return c->getSymbol() <
            std::min(he->getOrigin()->getSymbol(), twinRef->getOrigin()->getSymbol());
   } else
-    return isEdgeLegalNoSymbols(he, s);
+    return isEdgeLegalNoSymbols(twinRef->getTriangleRef(), s);
 }
 
 /**
  * The predicate for the case there no are symbolic points in either the half edge or
  * the adjacent triangle.
  * */
-bool DelaunayTriangulator::isEdgeLegalNoSymbols(HalfEdgeRef he, VertexRef s) {
-  TriangleRef triangleRef = he->getTwin()->getTriangleRef();
+bool DelaunayTriangulator::isEdgeLegalNoSymbols(TriangleRef triangleRef, VertexRef s) {
   VertexRef a = triangleRef->a, b = triangleRef->b, c = triangleRef->c;
 
   std::array<Vertex::RingType, 16> mat = {
@@ -97,7 +96,8 @@ bool DelaunayTriangulator::isEdgeLegalNoSymbols(HalfEdgeRef he, VertexRef s) {
   };
 
   // correct the determinant for triangle orientation
-  return triangleRef->getOrientation() * SquareMatrix<4, Vertex::RingType>(mat).det() < 0;
+  bool inside_circle = SquareMatrix<4, Vertex::RingType>(mat).det() > 0;
+  return (triangleRef->getOrientation() == Triangle::negative) ? !inside_circle : inside_circle;
 }
 
 DelaunayTriangulator::ChildContainerType DelaunayTriangulator::splitFace(TriangleRef face,

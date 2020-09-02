@@ -45,7 +45,7 @@ class DelaunayTriangulator {
   // pointer to the next Vertex to add to the triangulation
   VertexRef current;
 
- private:
+ protected:
   /**
    * @param vertexRef
    * @returng a reference to the face (triangle) that contains the point.
@@ -54,7 +54,7 @@ class DelaunayTriangulator {
   TriangleRef locatePoint(VertexRef vertexRef);
 
   bool isEdgeLegal(HalfEdgeRef he, VertexRef s);
-  bool isEdgeLegalNoSymbols(HalfEdgeRef he, VertexRef s);
+  bool isEdgeLegalNoSymbols(TriangleRef triangleRef, VertexRef s);
 
   ChildContainerType splitFace(TriangleRef face, VertexRef p);
 };

@@ -3,9 +3,9 @@
 #include <array>
 
 Triangle::Triangle(VertexRef a, VertexRef b, VertexRef c) : a(a), b(b), c(c) {
-  he             = new HalfEdge(a);
-  HalfEdgeRef bc = new HalfEdge(b);
-  HalfEdgeRef ca = new HalfEdge(c);
+  he      = new HalfEdge(a, nullptr, nullptr, nullptr);
+  auto bc = new HalfEdge(b, nullptr, nullptr, nullptr);
+  auto ca = new HalfEdge(c, nullptr, nullptr, nullptr);
 
   he->setPrev(ca);
   he->setNext(bc);
@@ -46,7 +46,7 @@ class nonZeroElementsIterator {
   // the largest index of all nonzero entries of mu
   int endIdx;
 
-  nonZeroElementsIterator(std::array<T, N>& _mu) : mu(_mu), currentIdx(-1), endIdx(N - 1) {
+  nonZeroElementsIterator(std::array<T, N>& mu) : mu(mu), currentIdx(-1), endIdx(N - 1) {
     while (!mu[endIdx]) --endIdx;
   }
 

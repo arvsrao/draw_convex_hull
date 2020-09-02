@@ -34,7 +34,7 @@ class HalfEdge {
   void setPrev(HalfEdgeRef he);
   void setNext(HalfEdgeRef he);
   void setTwin(HalfEdgeRef he);
-  void setTriangleRef(TriangleRef triangleRef);
+  void setTriangleRef(TriangleRef ref);
 
  private:
   // the 2D point origin of the half edge

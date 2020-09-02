@@ -1,5 +1,6 @@
 #include <TriangleWithOneSymbolicPoint.h>
 #include <gtest/gtest.h>
+#include <include/DelaunayTriangulator.h>
 #include <include/DirectedAcyclicNode.h>
 #include <include/HalfEdge.h>
 #include <include/Vertex.h>
@@ -93,4 +94,44 @@ TEST(DAG, SymbolicPointsTest) {
   ASSERT_TRUE(triangle_with_left_symbolic_point->containsPoint(&point_inside_left_triangle));
   ASSERT_TRUE(triangle_with_right_symbolic_point->containsPoint(&point_inside_right_triangle));
   ASSERT_FALSE(triangle_with_right_symbolic_point->containsPoint(&point_inside_left_triangle));
+}
+
+// foo.h
+class LegalEdgeChild : public DelaunayTriangulator {
+ public:
+  Vertex a = Vertex(-5, 0);
+  Vertex b = Vertex(0, 5);
+  Vertex c = Vertex(5, 0);
+  Vertex d = Vertex(0, -5);
+
+  bool isLegal(HalfEdgeRef he, HalfEdge::VertexRef s) { return isEdgeLegal(he, s); }
+};
+
+TEST(LegalEdgeTests, InitialTriangleTest) {
+  auto legalEdge = LegalEdgeChild();
+
+  // every edge of two_symbol_triangle should be legal
+  auto initial_triangle = TriangleWithTwoSymbolicPoints(&legalEdge.d);
+  auto edge             = initial_triangle.he;
+
+  EXPECT_TRUE(legalEdge.isLegal(edge, &legalEdge.d));
+  EXPECT_TRUE(legalEdge.isLegal(edge->getNext(), &legalEdge.d));
+  EXPECT_TRUE(legalEdge.isLegal(edge->getNext()->getNext(), &legalEdge.d));
+}
+
+TEST(LegalEdgeTests, AllNonSymbolicPointsTest) {
+  auto legalEdge = LegalEdgeChild();
+
+  Triangle triangle1 = Triangle(&legalEdge.c, &legalEdge.a, &legalEdge.b);
+  Triangle triangle2 = Triangle(&legalEdge.a, &legalEdge.c, &legalEdge.d);
+
+  // test point is inside triangle2
+  Vertex point_inside_circle  = Vertex(0, -2);
+  Vertex point_outside_circle = Vertex(0, -6);
+
+  triangle1.he->setTwin(triangle2.he);
+  triangle2.he->setTwin(triangle1.he);
+
+  EXPECT_FALSE(legalEdge.isLegal(triangle2.he, &point_inside_circle));
+  EXPECT_TRUE(legalEdge.isLegal(triangle2.he, &point_outside_circle));
 }

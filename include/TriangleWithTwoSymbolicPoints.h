@@ -5,7 +5,7 @@
 
 class TriangleWithTwoSymbolicPoints : public Triangle {
  public:
-  TriangleWithTwoSymbolicPoints(VertexRef p);
+  explicit TriangleWithTwoSymbolicPoints(VertexRef p0);
 
   /** True when the given point is below (less than) the not symbolic point
    *  p0 in triangle { Symbol::Left, p0, Symbol::Right }.
