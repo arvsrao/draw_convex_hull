@@ -117,6 +117,21 @@ TEST(LegalEdgeTests, InitialTriangleTest) {
   EXPECT_TRUE(legalEdge.isLegal(edge, &legalEdge.d));
   EXPECT_TRUE(legalEdge.isLegal(edge->getNext(), &legalEdge.d));
   EXPECT_TRUE(legalEdge.isLegal(edge->getNext()->getNext(), &legalEdge.d));
+
+  // now add a neighbor triangle
+  auto right_symbolic_vertex = new Vertex(Vertex::Symbol::Right);
+  auto neighbor = TriangleWithOneSymbolicPoint(&legalEdge.d, &legalEdge.c, right_symbolic_vertex);
+
+  auto initial_he  = initial_triangle.he->getNext();
+  auto neighbor_he = neighbor.he->getNext()->getNext();
+  initial_he->setTwin(neighbor_he);
+  neighbor_he->setTwin(initial_he);
+
+  auto point_in_initial_triangle = Vertex(-2, -7);
+  auto point_in_neighbor         = Vertex(2.5, -5.0);
+
+  EXPECT_FALSE(legalEdge.isLegal(initial_he, &point_in_initial_triangle));
+  EXPECT_TRUE(legalEdge.isLegal(neighbor_he, &point_in_neighbor));
 }
 
 TEST(LegalEdgeTests, AllNonSymbolicPointsTest) {

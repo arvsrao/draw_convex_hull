@@ -2,7 +2,9 @@
 #include <TriangleWithOneSymbolicPoint.h>
 
 TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint()
-    : Triangle(nullptr, nullptr, nullptr), symbol(Vertex::Symbol::None) {}
+    : Triangle(nullptr, nullptr, nullptr), symbol(Vertex::Symbol::None) {
+  orientation = unset;
+}
 
 TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint(Vertex::Symbol symbol, VertexRef a,
                                                            VertexRef b)
