@@ -1,3 +1,4 @@
+#include <Triangle.h>
 #include <include/SquareMatrix.h>
 
 #include <array>
@@ -22,6 +23,7 @@ Triangle::Triangle(VertexRef a, VertexRef b, VertexRef c) : a(a), b(b), c(c) {
 
   orientation = unset;
 }
+void Triangle::deleteEdges() { delete he; }
 
 Triangle::Triangle(HalfEdgeRef he) : he(he), a(nullptr), b(nullptr), c(nullptr) {
   if (he) a = he->getOrigin();

@@ -10,15 +10,17 @@ class DirectedAcyclicNode {
  public:
   static const uint8_t MAX_CHILDREN;
 
+  using DataRef                = T*;
+  using VertexRef              = Vertex*;
   using DirectedAcyclicNodeRef = DirectedAcyclicNode<T>*;
   using ChildContainerType     = std::array<DirectedAcyclicNodeRef, MAX_CHILDREN>;
 
   T* data;
   ChildContainerType children;
 
-  DirectedAcyclicNode(T* _data);
+  explicit DirectedAcyclicNode(DataRef data);
 
-  void addChild(T* _data);
+  void addChild(DataRef data);
 
   T* getFace();
   bool hasFace();
@@ -28,6 +30,9 @@ class DirectedAcyclicNode {
   ChildContainerType getChildren();
 
   virtual ~DirectedAcyclicNode();
+
+ private:
+  uint numChildren;
 };
 
 #include <impl/DirectedAcyclicNode.cpp>

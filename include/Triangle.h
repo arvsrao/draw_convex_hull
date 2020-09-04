@@ -21,6 +21,7 @@ class Triangle {
   explicit Triangle(HalfEdgeRef he);
   Triangle(VertexRef a, VertexRef b, VertexRef c);
 
+  void deleteEdges();
   virtual Orientation getOrientation();
 
   /** check if point is inside triangle. [includes boundary] */

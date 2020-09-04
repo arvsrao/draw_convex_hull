@@ -51,12 +51,13 @@ class DelaunayTriangulator {
    * @returng a reference to the face (triangle) that contains the point.
    * It, the triangle, is always in a leaf node.
    */
-  TriangleRef locatePoint(VertexRef vertexRef);
+  DirectedAcyclicNodeRef locatePoint(DirectedAcyclicNodeRef cur, VertexRef vertexRef);
 
+  static bool contains(DirectedAcyclicNodeRef ref, VertexRef p);
   bool isEdgeLegal(HalfEdgeRef he, VertexRef s);
   bool isEdgeLegalNoSymbols(TriangleRef triangleRef, VertexRef s);
 
-  ChildContainerType splitFace(TriangleRef face, VertexRef p);
+  void splitFace(DirectedAcyclicNodeRef ref, VertexRef p);
 };
 
 #include <impl/DelaunayTriangulator.cpp>

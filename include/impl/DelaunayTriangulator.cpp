@@ -36,26 +36,30 @@ DelaunayTriangulator::DelaunayTriangulator(VertexRefSeq& vertexSeq) {
   std::advance(current, Triangle::NUM_VERTICES_PER_FACE);
 }
 
-DelaunayTriangulator::TriangleRef DelaunayTriangulator::locatePoint(
-    const DelaunayTriangulator::VertexRef vertexRef) {
-  auto cur = dag;
-  while (cur->hasChildren()) {
+bool DelaunayTriangulator::contains(DirectedAcyclicNodeRef ref, VertexRef p) {
+  return ref->hasFace() && ref->getFace()->containsPoint(p);
+}
+
+DelaunayTriangulator::DirectedAcyclicNodeRef DelaunayTriangulator::locatePoint(
+    DirectedAcyclicNodeRef cur, const VertexRef p) {
+  if (cur != nullptr && contains(cur, p)) {
     for (auto& child : cur->getChildren()) {
-      if (child && child->getFace()->containsPoint(vertexRef)) {
-        cur = child;
-        break;
-      }
+      auto retval = locatePoint(child, p);
+      if (retval != nullptr) return retval;
     }
+    return cur;
   }
-  return cur->getFace();
+  return nullptr;
 }
 
 void DelaunayTriangulator::operator()() {
   // insert points into triangulation
   while (current != *points.end()) {
     // locate the triangle to split
-    TriangleRef face = locatePoint(current);
-    splitFace(face, current);
+    auto dagNodeRef = locatePoint(dag, current);
+
+    // split the face inside the node.
+    if (dagNodeRef != nullptr) splitFace(dagNodeRef, current);
 
     current++;
   }
@@ -100,11 +104,33 @@ bool DelaunayTriangulator::isEdgeLegalNoSymbols(TriangleRef triangleRef, VertexR
   return (triangleRef->getOrientation() == Triangle::negative) ? !inside_circle : inside_circle;
 }
 
-DelaunayTriangulator::ChildContainerType DelaunayTriangulator::splitFace(TriangleRef face,
-                                                                         VertexRef p) {
-  HalfEdge* ab = face->he;
-  HalfEdge* bc = ab->getNext();
-  HalfEdge* ca = bc->getNext();
+void DelaunayTriangulator::splitFace(DirectedAcyclicNodeRef dagRef, VertexRef p) {
+  auto face = dagRef->getFace();
+
+  HalfEdgeRef ab = face->he;
+  HalfEdgeRef bc = ab->getNext();
+  HalfEdgeRef ca = bc->getNext();
+
+  TriangleRef abp = new Triangle(face->a, face->b, p);
+  TriangleRef bcp = new Triangle(face->b, face->c, p);
+  TriangleRef cap = new Triangle(face->c, face->a, p);
+
+  // copy twin references to new half edges
+  abp->he->setTwin(ab->getTwin());
+  bcp->he->setTwin(bc->getTwin());
+  cap->he->setTwin(ca->getTwin());
+
+  // establish twin reference connections between the new triangles.
+  abp->he->getNext()->setTwin(bcp->he->getNext()->getNext());
+  bcp->he->getNext()->setTwin(cap->he->getNext()->getNext());
+  cap->he->getNext()->setTwin(abp->he->getNext()->getNext());
+
+  // delete redundant edges.
+  face->deleteEdges();
+
+  dagRef->addChild(abp);
+  dagRef->addChild(bcp);
+  dagRef->addChild(cap);
 }
 
 DelaunayTriangulator::~DelaunayTriangulator() {
