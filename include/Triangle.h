@@ -4,19 +4,22 @@
 #include <include/HalfEdge.h>
 #include <include/Vertex.h>
 
+#include <array>
+
 class Triangle {
  public:
+  static const uint8_t NUM_VERTICES_PER_FACE = 3;
+
   using VertexRef   = Vector2D<double>*;
   using HalfEdgeRef = HalfEdge*;
   using TriangleRef = Triangle*;
+  using ChildrenType = std::array<TriangleRef, NUM_VERTICES_PER_FACE>;
 
-  static const uint8_t NUM_VERTICES_PER_FACE = 3;
 
   enum Orientation { positive = +1, negative = -1, unset = 0 };
 
   HalfEdgeRef he;
   VertexRef a, b, c;
-  using ChildrenType = std::array<TriangleRef, NUM_VERTICES_PER_FACE>;
 
   explicit Triangle(HalfEdgeRef he);
   Triangle(VertexRef a, VertexRef b, VertexRef c);

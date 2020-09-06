@@ -105,32 +105,11 @@ bool DelaunayTriangulator::isEdgeLegalNoSymbols(TriangleRef triangleRef, VertexR
 }
 
 void DelaunayTriangulator::splitFace(DirectedAcyclicNodeRef dagRef, VertexRef p) {
-  auto face = dagRef->getFace();
+  auto children = dagRef->getFace()->splitFace(p);
 
-  HalfEdgeRef ab = face->he;
-  HalfEdgeRef bc = ab->getNext();
-  HalfEdgeRef ca = bc->getNext();
-
-  TriangleRef abp = new Triangle(face->a, face->b, p);
-  TriangleRef bcp = new Triangle(face->b, face->c, p);
-  TriangleRef cap = new Triangle(face->c, face->a, p);
-
-  // copy twin references to new half edges
-  abp->he->setTwin(ab->getTwin());
-  bcp->he->setTwin(bc->getTwin());
-  cap->he->setTwin(ca->getTwin());
-
-  // establish twin reference connections between the new triangles.
-  abp->he->getNext()->setTwin(bcp->he->getNext()->getNext());
-  bcp->he->getNext()->setTwin(cap->he->getNext()->getNext());
-  cap->he->getNext()->setTwin(abp->he->getNext()->getNext());
-
-  // delete redundant edges.
-  face->deleteEdges();
-
-  dagRef->addChild(abp);
-  dagRef->addChild(bcp);
-  dagRef->addChild(cap);
+  dagRef->addChild(children[0]);
+  dagRef->addChild(children[1]);
+  dagRef->addChild(children[2]);
 }
 
 DelaunayTriangulator::~DelaunayTriangulator() {

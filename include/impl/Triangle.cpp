@@ -127,3 +127,29 @@ Triangle::~Triangle() {
   // Triangle owns all the half edges of the face.
   delete he;
 }
+
+Triangle::ChildrenType Triangle::splitFace(Triangle::VertexRef p) {
+  HalfEdgeRef ab = this->he;
+  HalfEdgeRef bc = ab->getNext();
+  HalfEdgeRef ca = ab->getPrev();
+
+  TriangleRef abp = new Triangle(this->a, this->b, p);
+  TriangleRef bcp = new Triangle(this->b, this->c, p);
+  TriangleRef cap = new Triangle(this->c, this->a, p);
+
+  // copy twin references to new half edges
+  abp->he->setTwin(ab->getTwin());
+  bcp->he->setTwin(bc->getTwin());
+  cap->he->setTwin(ca->getTwin());
+
+  // establish twin reference connections between the new triangles.
+  abp->he->getNext()->setTwin(bcp->he->getPrev());
+  bcp->he->getNext()->setTwin(cap->he->getPrev());
+  cap->he->getNext()->setTwin(abp->he->getPrev());
+
+  // delete redundant edges.
+  this->deleteEdges();
+
+  Triangle::ChildrenType retval = {abp, bcp, cap};
+  return retval;
+}

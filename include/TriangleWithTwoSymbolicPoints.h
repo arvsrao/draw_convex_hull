@@ -17,6 +17,7 @@ class TriangleWithTwoSymbolicPoints : public Triangle {
 
  private:
   void setOrientation() override;
+  ChildrenType splitFace(VertexRef p);
 };
 
 #include <impl/TriangleWithTwoSymbolicPoints.cpp>

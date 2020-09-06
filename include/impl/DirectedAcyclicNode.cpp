@@ -33,8 +33,7 @@ bool DirectedAcyclicNode<T>::hasChildren() {
 }
 
 template <typename T>
-std::array<DirectedAcyclicNode<T>*, DirectedAcyclicNode<T>::MAX_CHILDREN>
-DirectedAcyclicNode<T>::getChildren() {
+typename DirectedAcyclicNode<T>::ChildContainerType DirectedAcyclicNode<T>::getChildren() {
   return children;
 }
 
