@@ -5,12 +5,12 @@
 
 class TriangleWithTwoSymbolicPoints : public Triangle {
  public:
-  TriangleWithTwoSymbolicPoints(VertexRef left, VertexRef p0, VertexRef right);
+  TriangleWithTwoSymbolicPoints(VertexRef p);
 
   /** True when the given point is below (less than) the not symbolic point
    *  p0 in triangle { Symbol::Left, p0, Symbol::Right }.
    */
-  bool containsPoint(const VertexRef p) const override;
+  bool containsPoint(VertexRef p) const override;
 
   ~TriangleWithTwoSymbolicPoints() override = default;
 };

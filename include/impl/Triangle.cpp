@@ -1,8 +1,6 @@
 #include <array>
 
-const uint8_t Triangle::NUM_VERTICES_PER_FACE = 3;
-
-Triangle::Triangle(VertexRef _a, VertexRef _b, VertexRef _c) : a(_a), b(_b), c(_c) {
+Triangle::Triangle(VertexRef a, VertexRef b, VertexRef c) : a(a), b(b), c(c) {
   he             = new HalfEdge(a);
   HalfEdgeRef bc = new HalfEdge(b);
   HalfEdgeRef ca = new HalfEdge(c);
@@ -17,7 +15,7 @@ Triangle::Triangle(VertexRef _a, VertexRef _b, VertexRef _c) : a(_a), b(_b), c(_
   ca->setNext(he);
 }
 
-Triangle::Triangle(HalfEdgeRef _he) : he(_he), a(nullptr), b(nullptr), c(nullptr) {
+Triangle::Triangle(HalfEdgeRef he) : he(he), a(nullptr), b(nullptr), c(nullptr) {
   if (he) a = he->getOrigin();
   if (a && he->getNext()) b = he->getNext()->getOrigin();
   if (b) c = he->getNext()->getNext()->getOrigin();

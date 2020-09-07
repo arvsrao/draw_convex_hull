@@ -4,18 +4,16 @@
 TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint()
     : Triangle(nullptr, nullptr, nullptr), symbol(Vertex::Symbol::None) {}
 
-TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint(VertexRef symbolicVertex, VertexRef a,
+TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint(Vertex::Symbol symbol, VertexRef a,
                                                            VertexRef b)
-    : Triangle(a, b, symbolicVertex) {
-  symbol = symbolicVertex ? symbolicVertex->getSymbol() : Vertex::Symbol::None;
-}
+    : Triangle(a, b, nullptr), symbol(symbol) {}
 
 Triangle::HalfEdgeRef TriangleWithOneSymbolicPoint::halfEdgeContainsPoint(Triangle::VertexRef p) {
   return he->isVertexInHalfEdge(p) ? he : nullptr;
 }
 
 // true if the given vertex is to right of edge ab.
-bool TriangleWithOneSymbolicPoint::containsPoint(const VertexRef p) const {
+bool TriangleWithOneSymbolicPoint::containsPoint(VertexRef p) const {
   auto a = he->getOrigin();
   auto b = he->getNext()->getOrigin();
 
@@ -40,4 +38,28 @@ bool TriangleWithOneSymbolicPoint::containsPoint(const VertexRef p) const {
   }
 }
 
-TriangleWithOneSymbolicPoint::~TriangleWithOneSymbolicPoint() = default;
+Triangle::ChildrenType TriangleWithOneSymbolicPoint::splitFace(Triangle::VertexRef p) {
+  HalfEdgeRef ab = this->he;
+  HalfEdgeRef bc = ab->getNext();
+  HalfEdgeRef ca = ab->getPrev();
+
+  TriangleRef abp = new Triangle(this->a, this->b, p);
+  TriangleRef pbc = new TriangleWithOneSymbolicPoint(symbol, this->b, this->c);
+  TriangleRef apc = new TriangleWithOneSymbolicPoint(symbol, this->a, p);
+
+  // copy twin references to new half edges
+  abp->he->setTwin(ab->getTwin());
+  pbc->he->getNext()->setTwin(bc->getTwin());
+  apc->he->getPrev()->setTwin(ca->getTwin());
+
+  // establish twin reference connections between the new triangles.
+  abp->he->getNext()->setTwin(pbc->he);
+  pbc->he->getPrev()->setTwin(apc->he->getNext());
+  apc->he->setTwin(abp->he->getPrev());
+
+  // delete redundant edges.
+  this->deleteEdges();
+
+  Triangle::ChildrenType retval = {abp, pbc, apc};
+  return retval;
+}

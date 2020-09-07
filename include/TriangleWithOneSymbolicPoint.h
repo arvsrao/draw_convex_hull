@@ -8,18 +8,21 @@ class TriangleWithOneSymbolicPoint : public Triangle {
   Vertex::Symbol symbol;
 
   TriangleWithOneSymbolicPoint();
-  TriangleWithOneSymbolicPoint(VertexRef symbolicVertex, VertexRef a, VertexRef b);
+  TriangleWithOneSymbolicPoint(Vertex::Symbol symbol, VertexRef a, VertexRef b);
 
   /** check if point is inside triangle. [includes boundary]
    * Since the triangle has one symbolic vertex, containsPoint
    * really is checking if query point is to the left or right
    * of HalfEdge ab.
    * */
-  bool containsPoint(const VertexRef p) const override;
+  bool containsPoint(VertexRef p) const override;
 
   HalfEdgeRef halfEdgeContainsPoint(VertexRef p) override;
 
-  ~TriangleWithOneSymbolicPoint();
+  ~TriangleWithOneSymbolicPoint() override = default;
+
+ private:
+  ChildrenType splitFace(VertexRef p) override;
 };
 
 #include <impl/TriangleWithOneSymbolicPoint.cpp>

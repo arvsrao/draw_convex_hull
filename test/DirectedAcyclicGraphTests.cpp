@@ -86,10 +86,10 @@ TEST(DAG, SymbolicPointsTest) {
   ASSERT_LT(right_symbol_point, origin);
 
   Triangle *triangle_with_left_symbolic_point =
-      new TriangleWithOneSymbolicPoint(&left_symbol_point, &origin, &end);
+      new TriangleWithOneSymbolicPoint(Vertex::Symbol::Left, &origin, &end);
 
   Triangle *triangle_with_right_symbolic_point =
-      new TriangleWithOneSymbolicPoint(&right_symbol_point, &origin, &end);
+      new TriangleWithOneSymbolicPoint(Vertex::Symbol::Right, &origin, &end);
 
   ASSERT_TRUE(triangle_with_left_symbolic_point->containsPoint(&point_inside_left_triangle));
   ASSERT_TRUE(triangle_with_right_symbolic_point->containsPoint(&point_inside_right_triangle));

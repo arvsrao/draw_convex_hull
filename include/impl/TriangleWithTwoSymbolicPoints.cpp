@@ -1,6 +1,5 @@
 
-TriangleWithTwoSymbolicPoints::TriangleWithTwoSymbolicPoints(VertexRef left, VertexRef p0,
-                                                             VertexRef right)
-    : Triangle(left, p0, right) {}
+TriangleWithTwoSymbolicPoints::TriangleWithTwoSymbolicPoints(VertexRef p)
+    : Triangle(nullptr, p, nullptr) {}
 
-bool TriangleWithTwoSymbolicPoints::containsPoint(const VertexRef p) const { return *p < *b; }
+bool TriangleWithTwoSymbolicPoints::containsPoint(VertexRef p) const { return *p < *b; }

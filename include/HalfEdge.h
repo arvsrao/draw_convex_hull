@@ -5,18 +5,22 @@
 
 class HalfEdge {
  public:
-  using VertexRef   = Vertex*;
+  using VertexRef   = Vector2D<double>*;
   using HalfEdgeRef = HalfEdge*;
 
-  HalfEdge(VertexRef _origin, HalfEdgeRef _prev, HalfEdgeRef _next, HalfEdgeRef _twin);
+  HalfEdge(VertexRef origin, HalfEdgeRef prev, HalfEdgeRef next, HalfEdgeRef twin);
 
   // for boundary edges
-  HalfEdge(VertexRef _origin);
+  explicit HalfEdge(Vertex::Symbol symbol);
+  explicit HalfEdge(VertexRef origin);
   ~HalfEdge();
 
-  VertexRef getOrigin();
-  HalfEdgeRef getTwin();
-  HalfEdgeRef getNext();
+  VertexRef getOrigin() const;
+  HalfEdgeRef getTwin() const;
+  HalfEdgeRef getNext() const;
+  HalfEdgeRef getPrev() const;
+  Vertex::Symbol getSymbol() const;
+  bool hasSymbol() const;
 
   bool isVertexInHalfEdge(VertexRef vertexRef);
 
@@ -26,12 +30,9 @@ class HalfEdge {
 
  private:
   // the 2D point origin of the half edge
+  Vertex::Symbol symbol;
   VertexRef origin;
   HalfEdgeRef twin, next, prev;
-
-  static double det2D(const Vertex::VectorType p, const Vertex::VectorType q) {
-    return p.x * q.y - q.x * p.y;
-  }
 };
 
 #include <impl/HalfEdge.cpp>

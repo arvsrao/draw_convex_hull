@@ -6,23 +6,28 @@
 
 class Triangle {
  public:
-  using VertexRef   = Vertex*;
+  using VertexRef   = Vector2D<double>*;
   using HalfEdgeRef = HalfEdge*;
+  using TriangleRef = Triangle*;
 
-  static const uint8_t NUM_VERTICES_PER_FACE;
+  static const uint8_t NUM_VERTICES_PER_FACE = 3;
 
   HalfEdgeRef he;
   VertexRef a, b, c;
+  using ChildrenType = std::array<TriangleRef, NUM_VERTICES_PER_FACE>;
 
-  Triangle(HalfEdgeRef _he);
-  Triangle(VertexRef _a, VertexRef _b, VertexRef _c);
+  explicit Triangle(HalfEdgeRef he);
+  Triangle(VertexRef a, VertexRef b, VertexRef c);
 
   /** check if point is inside triangle. [includes boundary] */
-  virtual bool containsPoint(const VertexRef p) const;
+  virtual bool containsPoint(VertexRef p) const;
 
   virtual HalfEdgeRef halfEdgeContainsPoint(VertexRef p);
 
   virtual ~Triangle();
+
+ private:
+  virtual ChildrenType splitFace(VertexRef p);
 };
 
 #include <impl/Triangle.cpp>

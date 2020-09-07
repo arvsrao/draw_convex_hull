@@ -1,21 +1,32 @@
 
-HalfEdge::HalfEdge(VertexRef _origin)
-    : origin(_origin), next(nullptr), prev(nullptr), twin(nullptr) {}
+#include <HalfEdge.h>
 
-HalfEdge::HalfEdge(VertexRef _origin, HalfEdgeRef _prev, HalfEdgeRef _next, HalfEdgeRef _twin)
-    : origin(_origin), prev(_prev), next(_next), twin(_twin) {}
+HalfEdge::HalfEdge(Vertex::Symbol symbol)
+    : origin(nullptr), symbol(symbol), next(nullptr), prev(nullptr), twin(nullptr) {}
 
-Vertex* HalfEdge::getOrigin() { return origin; }
+HalfEdge::HalfEdge(VertexRef origin)
+    : origin(origin), symbol(Vertex::None), next(nullptr), prev(nullptr), twin(nullptr) {}
 
-HalfEdge* HalfEdge::getTwin() { return twin; }
+HalfEdge::HalfEdge(VertexRef origin, HalfEdgeRef prev, HalfEdgeRef next, HalfEdgeRef twin)
+    : origin(origin), symbol(Vertex::None), prev(prev), next(next), twin(twin) {}
 
-HalfEdge* HalfEdge::getNext() { return next; }
+HalfEdge::VertexRef HalfEdge::getOrigin() const { return origin; }
+
+HalfEdge::HalfEdgeRef HalfEdge::getTwin() const { return twin; }
+
+HalfEdge* HalfEdge::getNext() const { return next; }
+
+HalfEdge* HalfEdge::getPrev() const { return prev; }
+
+Vertex::Symbol HalfEdge::getSymbol() const { return symbol; }
 
 void HalfEdge::setPrev(HalfEdge* he) { prev = he; }
 
 void HalfEdge::setNext(HalfEdge* he) { next = he; }
 
 void HalfEdge::setTwin(HalfEdge* he) { twin = he; }
+
+bool HalfEdge::hasSymbol() const { return symbol != Vertex::None; }
 
 bool HalfEdge::isVertexInHalfEdge(HalfEdge::VertexRef vertexRef) {
   HalfEdge::VertexRef b = next->getNext()->origin;
