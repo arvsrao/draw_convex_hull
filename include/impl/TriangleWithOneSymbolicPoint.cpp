@@ -2,13 +2,20 @@
 #include <TriangleWithOneSymbolicPoint.h>
 
 TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint()
-    : Triangle(nullptr, nullptr, nullptr), symbol(Vertex::Symbol::None) {
+    : Triangle(nullptr, nullptr, nullptr), symbol(HalfEdge::Symbol::None) {
   orientation = unset;
 }
 
-TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint(Vertex::Symbol symbol, VertexRef a,
+TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint(HalfEdge::Symbol symbol, VertexRef a,
                                                            VertexRef b)
-    : Triangle(a, b, nullptr), symbol(symbol) {}
+    : Triangle(a, b, nullptr), symbol(symbol) {
+  HalfEdgeRef ca = he->getPrev();
+
+  ca->setSymbol(symbol);
+
+  // fixed and arbitrary choice. all half edges are symbolic anyway.
+  orientation = unset;
+}
 
 Triangle::HalfEdgeRef TriangleWithOneSymbolicPoint::halfEdgeContainsPoint(Triangle::VertexRef p) {
   return he->isVertexInHalfEdge(p) ? he : nullptr;
@@ -29,9 +36,9 @@ bool TriangleWithOneSymbolicPoint::containsPoint(VertexRef p) const {
   auto side = SquareMatrix<NUM_VERTICES_PER_FACE, Vertex::RingType>(mat).det();
 
   switch (symbol) {
-    case Vertex::Left:
+    case HalfEdge::Left:
       return side < 0 && (*p < *v) && (*p > *w);
-    case Vertex::Right:
+    case HalfEdge::Right:
       return side > 0 && (*p < *v) && (*p > *w);
     default:
       return false;  // possibly identify if p is in the edge
@@ -40,10 +47,10 @@ bool TriangleWithOneSymbolicPoint::containsPoint(VertexRef p) const {
 
 void TriangleWithOneSymbolicPoint::setOrientation() {
   switch (symbol) {
-    case Vertex::Left:
+    case HalfEdge::Left:
       orientation = (*a < *b) ? positive : negative;
       break;
-    case Vertex::Right:
+    case HalfEdge::Right:
       orientation = (*a < *b) ? negative : positive;
       break;
     default:
@@ -56,14 +63,14 @@ Triangle::Orientation TriangleWithOneSymbolicPoint::getOrientation() {
   return orientation;
 }
 
-Triangle::ChildrenType TriangleWithOneSymbolicPoint::splitFace(Triangle::VertexRef p) {
-  HalfEdgeRef ab = this->he;
+Triangle::ChildrenType TriangleWithOneSymbolicPoint::splitFace(VertexRef p) {
+  HalfEdgeRef ab = he;
   HalfEdgeRef bc = ab->getNext();
   HalfEdgeRef ca = ab->getPrev();
 
-  TriangleRef abp = new Triangle(this->a, this->b, p);
-  TriangleRef pbc = new TriangleWithOneSymbolicPoint(symbol, this->b, this->c);
-  TriangleRef apc = new TriangleWithOneSymbolicPoint(symbol, this->a, p);
+  TriangleRef abp = new Triangle(a, b, p);
+  TriangleRef pbc = new TriangleWithOneSymbolicPoint(symbol, p, b);
+  TriangleRef apc = new TriangleWithOneSymbolicPoint(symbol, a, p);
 
   // copy twin references to new half edges
   abp->he->setTwin(ab->getTwin());

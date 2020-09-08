@@ -28,13 +28,6 @@ bool Vertex::operator==(const Vertex &rhs) const {
     return VectorType::operator==(rhs);
 }
 
-bool Vertex::operator==(const Vertex &rhs) const {
-  if (isSymbol() || rhs.isSymbol())
-    return symbol == rhs.symbol;
-  else
-    return VectorType::operator==(rhs);
-}
-
 bool Vertex::operator!=(const Vertex &rhs) const { return !(*this == rhs); }
 
 bool Vertex::operator<(const Vertex &rhs) const { return !(*this >= rhs); }

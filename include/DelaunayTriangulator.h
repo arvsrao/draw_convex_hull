@@ -3,13 +3,12 @@
 
 #include <DirectedAcyclicNode.h>
 #include <Triangle.h>
-#include <Vertex.h>
 
 #include <vector>
 
 class DelaunayTriangulator {
  public:
-  using VertexRef               = Vertex*;
+  using VertexRef               = Triangle::VertexRef;
   using VertexRefSeq            = std::vector<VertexRef>;
   using TriangleRef             = Triangle*;
   using HalfEdgeRef             = HalfEdge*;

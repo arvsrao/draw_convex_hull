@@ -86,10 +86,10 @@ TEST(DAG, SymbolicPointsTest) {
   ASSERT_LT(right_symbol_point, origin);
 
   Triangle *triangle_with_left_symbolic_point =
-      new TriangleWithOneSymbolicPoint(Vertex::Symbol::Left, &origin, &end);
+      new TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Left, &origin, &end);
 
   Triangle *triangle_with_right_symbolic_point =
-      new TriangleWithOneSymbolicPoint(Vertex::Symbol::Right, &origin, &end);
+      new TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Right, &origin, &end);
 
   ASSERT_TRUE(triangle_with_left_symbolic_point->containsPoint(&point_inside_left_triangle));
   ASSERT_TRUE(triangle_with_right_symbolic_point->containsPoint(&point_inside_right_triangle));
@@ -119,8 +119,7 @@ TEST(LegalEdgeTests, InitialTriangleTest) {
   EXPECT_TRUE(legalEdge.isLegal(edge->getNext()->getNext(), &legalEdge.d));
 
   // now add a neighbor triangle
-  auto right_symbolic_vertex = new Vertex(Vertex::Symbol::Right);
-  auto neighbor = TriangleWithOneSymbolicPoint(&legalEdge.d, &legalEdge.c, right_symbolic_vertex);
+  auto neighbor = TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Right, &legalEdge.d, &legalEdge.c);
 
   auto initial_he  = initial_triangle.he->getNext();
   auto neighbor_he = neighbor.he->getNext()->getNext();

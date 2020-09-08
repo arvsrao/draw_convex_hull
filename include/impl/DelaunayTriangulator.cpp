@@ -12,9 +12,7 @@ DelaunayTriangulator::DelaunayTriangulator(VertexRefSeq& vertexSeq) {
   VertexRef p0 = *std::max_element(vertexSeq.begin(), vertexSeq.end(),
                                    [&](VertexRef a, VertexRef b) { return *a < *b; });
 
-  // Insert symbolic points before the highest point.
-  points.push_back(new Vertex(Vertex::Symbol::Left));
-  points.push_back(new Vertex(Vertex::Symbol::Right));
+  // Do Not insert symbolic points before the highest point.
   points.push_back(p0);
 
   // obtain a time-based seed:
@@ -29,7 +27,7 @@ DelaunayTriangulator::DelaunayTriangulator(VertexRefSeq& vertexSeq) {
     if (vertexRef != p0) points.push_back(vertexRef);
   }
 
-  triangulation.push_back(new TriangleWithTwoSymbolicPoints(points[2]));
+  triangulation.push_back(new TriangleWithTwoSymbolicPoints(points[0]));
   dag = new DirectedAcyclicNodeType(triangulation[0]);
 
   current = *points.begin();
@@ -77,10 +75,9 @@ bool DelaunayTriangulator::isEdgeLegal(HalfEdgeRef he, VertexRef s) {
   if (!twinRef || !twinRef->getTriangleRef()) return true;
 
   // c can be symbolic. it is the vertex of the half edge in the neighboring triangle
-  VertexRef c = twinRef->getNext()->getNext()->getOrigin();
-  if (c->isSymbol() || he->hasSymbol()) {
-    return c->getSymbol() <
-           std::min(he->getOrigin()->getSymbol(), twinRef->getOrigin()->getSymbol());
+  HalfEdgeRef ca = twinRef->getPrev();
+  if (ca->hasSymbol() || he->hasSymbol()) {
+    return ca->getSymbol() < std::min(he->getSymbol(), twinRef->getSymbol());
   } else
     return isEdgeLegalNoSymbols(twinRef->getTriangleRef(), s);
 }

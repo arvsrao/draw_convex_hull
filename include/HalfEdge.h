@@ -1,21 +1,27 @@
 #ifndef DRAW_CONVEX_HULL_HALFEDGE_H
 #define DRAW_CONVEX_HULL_HALFEDGE_H
 
-#include <Vertex.h>
+#include <Vector2D.h>
 
 // forward declaring Triangle is enough to reference it.
 class Triangle;
 
 class HalfEdge {
  public:
-  using VertexRef   = Vector2D<double>*;
+  using RingType    = double;
+  using VertexRef   = Vector2D<RingType>*;
   using HalfEdgeRef = HalfEdge*;
   using TriangleRef = Triangle*;
+
+  // None : the vertex is not a symbolic point
+  // Left : the vertex is symbolic and to the left && above all other vertices
+  // Right : the vertex is symbolic and to the right && below all other vertices
+  enum Symbol { Left = -2, None = +1, Right = -1 };
 
   HalfEdge(VertexRef origin, HalfEdgeRef prev, HalfEdgeRef next, HalfEdgeRef twin);
 
   // for boundary edges
-  explicit HalfEdge(Vertex::Symbol symbol);
+  explicit HalfEdge(Symbol symbol);
   explicit HalfEdge(VertexRef origin);
   ~HalfEdge();
 
@@ -23,7 +29,7 @@ class HalfEdge {
   HalfEdgeRef getTwin() const;
   HalfEdgeRef getNext() const;
   HalfEdgeRef getPrev() const;
-  Vertex::Symbol getSymbol() const;
+  Symbol getSymbol() const;
   TriangleRef getTriangleRef() const;
 
   /** return the symbol type of either point */
@@ -34,11 +40,12 @@ class HalfEdge {
   void setPrev(HalfEdgeRef he);
   void setNext(HalfEdgeRef he);
   void setTwin(HalfEdgeRef he);
+  void setSymbol(Symbol s);
   void setTriangleRef(TriangleRef ref);
 
  private:
   // the 2D point origin of the half edge
-  Vertex::Symbol symbol;
+  Symbol symbol;
   VertexRef origin;
   HalfEdgeRef twin, next, prev;
   TriangleRef triangleRef;

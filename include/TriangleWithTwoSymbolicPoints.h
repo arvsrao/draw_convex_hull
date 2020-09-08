@@ -11,13 +11,14 @@ class TriangleWithTwoSymbolicPoints : public Triangle {
    *  p0 in triangle { Symbol::Left, p0, Symbol::Right }.
    */
   bool containsPoint(VertexRef p) const override;
+  ChildrenType splitFace(VertexRef p) override;
+
   Orientation getOrientation() override;
 
   ~TriangleWithTwoSymbolicPoints() override = default;
 
  private:
   void setOrientation() override;
-  ChildrenType splitFace(VertexRef p);
 };
 
 #include <impl/TriangleWithTwoSymbolicPoints.cpp>

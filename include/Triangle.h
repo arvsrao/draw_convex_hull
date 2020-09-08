@@ -10,11 +10,10 @@ class Triangle {
  public:
   static const uint8_t NUM_VERTICES_PER_FACE = 3;
 
-  using VertexRef   = Vector2D<double>*;
-  using HalfEdgeRef = HalfEdge*;
-  using TriangleRef = Triangle*;
+  using VertexRef    = Vector2D<double>*;
+  using HalfEdgeRef  = HalfEdge*;
+  using TriangleRef  = Triangle*;
   using ChildrenType = std::array<TriangleRef, NUM_VERTICES_PER_FACE>;
-
 
   enum Orientation { positive = +1, negative = -1, unset = 0 };
 

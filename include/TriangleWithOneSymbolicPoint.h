@@ -5,10 +5,8 @@
 
 class TriangleWithOneSymbolicPoint : public Triangle {
  public:
-  Vertex::Symbol symbol;
-
   TriangleWithOneSymbolicPoint();
-  TriangleWithOneSymbolicPoint(Vertex::Symbol symbol, VertexRef a, VertexRef b);
+  TriangleWithOneSymbolicPoint(HalfEdge::Symbol symbol, VertexRef a, VertexRef b);
 
   /** check if point is inside triangle. [includes boundary]
    * Since the triangle has one symbolic vertex, containsPoint
@@ -25,8 +23,8 @@ class TriangleWithOneSymbolicPoint : public Triangle {
   ~TriangleWithOneSymbolicPoint() override = default;
 
  private:
+  HalfEdge::Symbol symbol;
   void setOrientation() override;
-  ChildrenType splitFace(VertexRef p);
 };
 
 #include <impl/TriangleWithOneSymbolicPoint.cpp>

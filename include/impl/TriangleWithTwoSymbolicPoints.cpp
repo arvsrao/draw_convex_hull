@@ -2,6 +2,11 @@
 
 TriangleWithTwoSymbolicPoints::TriangleWithTwoSymbolicPoints(VertexRef p)
     : Triangle(nullptr, p, nullptr) {
+  HalfEdgeRef ca = he->getPrev();
+
+  he->setSymbol(HalfEdge::Symbol::Left);
+  ca->setSymbol(HalfEdge::Symbol::Right);
+
   // fixed and arbitrary choice. all half edges are symbolic anyway.
   orientation = unset;
 }
@@ -13,13 +18,13 @@ Triangle::Orientation TriangleWithTwoSymbolicPoints::getOrientation() { return o
 void TriangleWithTwoSymbolicPoints::setOrientation() { orientation = unset; }
 Triangle::ChildrenType TriangleWithTwoSymbolicPoints::splitFace(Triangle::VertexRef p) {
   // b is the not symbolic point
-  HalfEdgeRef ab = this->he;
+  HalfEdgeRef ab = he;
   HalfEdgeRef bc = ab->getNext();
   HalfEdgeRef ca = ab->getPrev();
 
-  TriangleRef abp = new Triangle(this->a, this->b, p);
-  TriangleRef pbc = new TriangleWithOneSymbolicPoint(p, this->b, this->c);
-  TriangleRef apc = new TriangleWithOneSymbolicPoint(this->a, p, this->c);
+  TriangleRef abp = new TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Left, b, p);
+  TriangleRef pbc = new TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Right, p, b);
+  TriangleRef apc = new TriangleWithTwoSymbolicPoints(p);
 
   // copy twin references to new half edges
   abp->he->setTwin(ab->getTwin());
