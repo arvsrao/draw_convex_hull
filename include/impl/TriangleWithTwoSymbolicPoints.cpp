@@ -8,7 +8,17 @@ TriangleWithTwoSymbolicPoints::TriangleWithTwoSymbolicPoints(VertexRef p)
   ca->setSymbol(HalfEdge::Symbol::Right);
 
   // fixed and arbitrary choice. all half edges are symbolic anyway.
-  orientation = unset;
+  orientation = negative;
+}
+
+TriangleWithTwoSymbolicPoints::TriangleWithTwoSymbolicPoints(VertexRef p, HalfEdge::Symbol a,
+                                                             HalfEdge::Symbol b)
+    : Triangle(nullptr, p, nullptr) {
+  he->setSymbol(a);
+  he->getPrev()->setSymbol(b);
+
+  // fixed and arbitrary choice. all half edges are symbolic anyway.
+  orientation = he->getSymbol() == HalfEdge::Left ? negative : positive;
 }
 
 bool TriangleWithTwoSymbolicPoints::containsPoint(VertexRef p) const { return *p < *b; }
@@ -16,29 +26,39 @@ bool TriangleWithTwoSymbolicPoints::containsPoint(VertexRef p) const { return *p
 Triangle::Orientation TriangleWithTwoSymbolicPoints::getOrientation() { return orientation; }
 
 void TriangleWithTwoSymbolicPoints::setOrientation() { orientation = unset; }
-Triangle::ChildrenType TriangleWithTwoSymbolicPoints::splitFace(Triangle::VertexRef p) {
-  // b is the not symbolic point
+
+Triangle::NewEdgeRefsContainerType TriangleWithTwoSymbolicPoints::splitFace(Triangle::VertexRef p) {
+  // b is not a symbolic point
   HalfEdgeRef ab = he;
   HalfEdgeRef bc = ab->getNext();
   HalfEdgeRef ca = ab->getPrev();
 
-  TriangleRef abp = new TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Left, b, p);
-  TriangleRef pbc = new TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Right, p, b);
-  TriangleRef apc = new TriangleWithTwoSymbolicPoints(p);
+  TriangleRef bpa = new TriangleWithOneSymbolicPoint(ab->getSymbol(), b, p);
+  TriangleRef pbc = new TriangleWithOneSymbolicPoint(ca->getSymbol(), p, b);
+  TriangleRef apc = new TriangleWithTwoSymbolicPoints(p, ab->getSymbol(), ca->getSymbol());
 
   // copy twin references to new half edges
-  abp->he->setTwin(ab->getTwin());
+  auto newAB = bpa->he->getPrev();
+  newAB->setTwin(ab->getTwin());
+  ab->getTwin()->setTwin(newAB);
+
   pbc->he->getNext()->setTwin(bc->getTwin());
+  bc->getTwin()->setTwin(pbc->he->getNext());
+
   apc->he->getPrev()->setTwin(ca->getTwin());
+  ca->getTwin()->setTwin(apc->he->getPrev());
 
   // establish twin reference connections between the new triangles.
-  abp->he->getNext()->setTwin(pbc->he);
+  newAB->getNext()->setTwin(pbc->he);
+  pbc->he->setTwin(newAB->getNext());
+
   pbc->he->getPrev()->setTwin(apc->he->getNext());
-  apc->he->setTwin(abp->he->getPrev());
+  apc->he->getNext()->setTwin(pbc->he->getPrev());
 
-  // delete redundant edges.
-  this->deleteEdges();
+  apc->he->setTwin(newAB->getPrev());
+  newAB->getPrev()->setTwin(apc->he);
 
-  Triangle::ChildrenType retval = {abp, pbc, apc};
-  return retval;
+  children = {bpa, pbc, apc};
+
+  return {newAB->getNext(), pbc->he->getPrev(), apc->he, nullptr};
 }

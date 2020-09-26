@@ -5,13 +5,14 @@
 
 class TriangleWithTwoSymbolicPoints : public Triangle {
  public:
-  explicit TriangleWithTwoSymbolicPoints(VertexRef p0);
+  explicit TriangleWithTwoSymbolicPoints(VertexRef p);
+  TriangleWithTwoSymbolicPoints(VertexRef p, HalfEdge::Symbol w, HalfEdge::Symbol v);
 
   /** True when the given point is below (less than) the not symbolic point
    *  p0 in triangle { Symbol::Left, p0, Symbol::Right }.
    */
   bool containsPoint(VertexRef p) const override;
-  ChildrenType splitFace(VertexRef p) override;
+  NewEdgeRefsContainerType splitFace(VertexRef p) override;
 
   Orientation getOrientation() override;
 

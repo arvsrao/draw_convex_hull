@@ -1,24 +1,13 @@
 #include <TriangleWithOneSymbolicPoint.h>
 #include <gtest/gtest.h>
 #include <include/DelaunayTriangulator.h>
-#include <include/DirectedAcyclicNode.h>
 #include <include/HalfEdge.h>
-#include <include/Vertex.h>
 
 using HalfEdgeRef = HalfEdge *;
+using Vertex      = Vector2D<double>;
 
 std::array<Vertex, 3> nodes = {Vertex(-4, -4), Vertex(0, 4), Vertex(4, 0)};
 Triangle triangle           = Triangle(&nodes[0], &nodes[1], &nodes[2]);
-
-TEST(DAG, CreationTest) {
-  auto dag = new DirectedAcyclicNode<Triangle>(&triangle);
-
-  ASSERT_EQ(dag->getFace()->a, triangle.a);
-  ASSERT_EQ(dag->getFace()->b, triangle.b);
-  ASSERT_EQ(dag->getFace()->c, triangle.c);
-
-  ASSERT_FALSE(dag->hasChildren());
-}
 
 TEST(DAG, PointInTriangleTest) {
   Vertex inside_point  = Vertex(0.0, 0.0);
@@ -70,20 +59,10 @@ TEST(DAG, TriangulationRepresentationTest) {
 }
 
 TEST(DAG, SymbolicPointsTest) {
-  auto left_symbol_point  = Vertex(Vertex::Symbol::Left);
-  auto right_symbol_point = Vertex(Vertex::Symbol::Right);
-
   auto origin                      = Vertex(0.0, 0.0);
   auto end                         = Vertex(5.0, 5.0);
   auto point_inside_left_triangle  = Vertex(-2.0, 4.0);
   auto point_inside_right_triangle = Vertex(6.0, 4.0);
-
-  // The Left Symbolic should be greater than any other point.
-  // The Right Symbolic should be less than any other point.
-  ASSERT_GT(left_symbol_point, end);
-  ASSERT_GT(left_symbol_point, origin);
-  ASSERT_LT(right_symbol_point, end);
-  ASSERT_LT(right_symbol_point, origin);
 
   Triangle *triangle_with_left_symbolic_point =
       new TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Left, &origin, &end);
@@ -122,7 +101,8 @@ TEST(LegalEdgeTests, InitialTriangleTest) {
   auto neighbor = TriangleWithOneSymbolicPoint(HalfEdge::Symbol::Right, &legalEdge.d, &legalEdge.c);
 
   auto initial_he  = initial_triangle.he->getNext();
-  auto neighbor_he = neighbor.he->getNext()->getNext();
+  auto neighbor_he = neighbor.he->getPrev();
+
   initial_he->setTwin(neighbor_he);
   neighbor_he->setTwin(initial_he);
 

@@ -17,23 +17,19 @@ TriangleWithOneSymbolicPoint::TriangleWithOneSymbolicPoint(HalfEdge::Symbol symb
   orientation = unset;
 }
 
-Triangle::HalfEdgeRef TriangleWithOneSymbolicPoint::halfEdgeContainsPoint(Triangle::VertexRef p) {
-  return he->isVertexInHalfEdge(p) ? he : nullptr;
-}
-
 // true if the given vertex is to right of edge ab.
 bool TriangleWithOneSymbolicPoint::containsPoint(VertexRef p) const {
   // swap if v is not higher/greater than w
   VertexRef v = a, w = b;
   if (*v < *w) std::swap(v, w);
 
-  std::array<Vertex::RingType, NUM_VERTICES_PER_FACE * NUM_VERTICES_PER_FACE> mat{
+  std::array<RingType, NUM_VERTICES_PER_FACE * NUM_VERTICES_PER_FACE> mat{
       p->x, p->y, 1,  //
       v->x, v->y, 1,  //
       w->x, w->x, 1,  //
   };
 
-  auto side = SquareMatrix<NUM_VERTICES_PER_FACE, Vertex::RingType>(mat).det();
+  auto side = SquareMatrix<NUM_VERTICES_PER_FACE, RingType>(mat).det();
 
   switch (symbol) {
     case HalfEdge::Left:
@@ -63,28 +59,96 @@ Triangle::Orientation TriangleWithOneSymbolicPoint::getOrientation() {
   return orientation;
 }
 
-Triangle::ChildrenType TriangleWithOneSymbolicPoint::splitFace(VertexRef p) {
+Triangle::NewEdgeRefsContainerType TriangleWithOneSymbolicPoint::splitEdge(HalfEdgeRef ref,
+                                                                           VertexRef q,
+                                                                           VertexRef p) {
+  splitEdgeHelper(ref, nullptr, p);
+  NewEdgeRefsContainerType retVal = {getChild(0)->he->getPrev(), getChild(1)->he->getNext(),
+                                     nullptr, nullptr};
+
+  if (ref->getTwin() != nullptr) {
+    auto twin     = ref->getTwin();
+    auto qPrime   = twin->getPrev()->getOrigin();
+    auto neighbor = twin->getTriangleRef();
+
+    // split the neighboring face.
+    neighbor->splitEdgeHelper(twin, qPrime, p);
+    neighbor->getChild(0)->he->setTwin(this->getChild(1)->he);
+    neighbor->getChild(1)->he->setTwin(this->getChild(0)->he);
+
+    this->getChild(0)->he->setTwin(neighbor->getChild(1)->he);
+    this->getChild(1)->he->setTwin(neighbor->getChild(0)->he);
+
+    delete twin;  // delete the neighbor edges
+
+    // should return new edges.
+    retVal[3] = neighbor->getChild(0)->he->getPrev();
+    retVal[4] = neighbor->getChild(1)->he->getNext();
+  }
+
+  delete he;
+
+  return retVal;
+}
+
+// if called then it is known that p is in halfedge he, and the vertex opposite is
+// the symbol
+void TriangleWithOneSymbolicPoint::splitEdgeHelper(HalfEdgeRef ref, VertexRef q, VertexRef p) {
+  auto v = ref->getOrigin();
+  auto w = ref->getNext()->getOrigin();
+
+  auto vpq = new TriangleWithOneSymbolicPoint(symbol, v, p);
+  auto pwq = new TriangleWithOneSymbolicPoint(symbol, p, w);
+
+  // establish twin reference connections between the new triangles.
+  vpq->he->getNext()->setTwin(pwq->he->getPrev());
+
+  vpq->he->getPrev()->setTwin(ref->getPrev()->getTwin());
+  ref->getPrev()->getTwin()->setTwin(vpq->he->getPrev());
+
+  pwq->he->getNext()->setTwin(ref->getNext()->getTwin());
+  ref->getNext()->getTwin()->setTwin(pwq->he->getNext());
+
+  addChild(vpq);
+  addChild(pwq);
+}
+
+Triangle::NewEdgeRefsContainerType TriangleWithOneSymbolicPoint::splitFace(VertexRef p) {
   HalfEdgeRef ab = he;
   HalfEdgeRef bc = ab->getNext();
   HalfEdgeRef ca = ab->getPrev();
 
-  TriangleRef abp = new Triangle(a, b, p);
-  TriangleRef pbc = new TriangleWithOneSymbolicPoint(symbol, p, b);
-  TriangleRef apc = new TriangleWithOneSymbolicPoint(symbol, a, p);
+  // ab/he is the only edge of the triangle that does not have a symbol.
+  if (he->isVertexInHalfEdge(p))
+    return splitEdge(he, nullptr, p);
+  else {
+    TriangleRef abp = new Triangle(a, b, p);
+    TriangleRef pbc = new TriangleWithOneSymbolicPoint(symbol, p, b);
+    TriangleRef apc = new TriangleWithOneSymbolicPoint(symbol, a, p);
 
-  // copy twin references to new half edges
-  abp->he->setTwin(ab->getTwin());
-  pbc->he->getNext()->setTwin(bc->getTwin());
-  apc->he->getPrev()->setTwin(ca->getTwin());
+    // copy twin references to new half edges
+    abp->he->setTwin(ab->getTwin());
+    ab->getTwin()->setTwin(abp->he);
 
-  // establish twin reference connections between the new triangles.
-  abp->he->getNext()->setTwin(pbc->he);
-  pbc->he->getPrev()->setTwin(apc->he->getNext());
-  apc->he->setTwin(abp->he->getPrev());
+    pbc->he->getNext()->setTwin(bc->getTwin());
+    bc->getTwin()->setTwin(pbc->he->getNext());
 
-  // delete redundant edges.
-  this->deleteEdges();
+    apc->he->getPrev()->setTwin(ca->getTwin());
+    ca->getTwin()->setTwin(apc->he->getPrev());
 
-  Triangle::ChildrenType retval = {abp, pbc, apc};
-  return retval;
+    // establish twin reference connections between the new triangles.
+    abp->he->getNext()->setTwin(pbc->he);
+    pbc->he->setTwin(abp->he->getNext());
+
+    pbc->he->getPrev()->setTwin(apc->he->getNext());
+    apc->he->getNext()->setTwin(pbc->he->getPrev());
+
+    apc->he->setTwin(abp->he->getPrev());
+    abp->he->getPrev()->setTwin(apc->he);
+
+    children = {abp, pbc, apc};
+    delete he;
+
+    return {abp->he, pbc->he->getNext(), apc->he->getPrev(), nullptr};
+  }
 }

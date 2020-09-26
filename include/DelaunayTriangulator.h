@@ -1,22 +1,18 @@
 #ifndef DRAW_CONVEX_HULL_DELAUNAYTRIANGULATOR_H
 #define DRAW_CONVEX_HULL_DELAUNAYTRIANGULATOR_H
 
-#include <DirectedAcyclicNode.h>
 #include <Triangle.h>
 
 #include <vector>
 
 class DelaunayTriangulator {
  public:
-  using VertexRef               = Triangle::VertexRef;
-  using VertexRefSeq            = std::vector<VertexRef>;
-  using TriangleRef             = Triangle*;
-  using HalfEdgeRef             = HalfEdge*;
-  using DirectedAcyclicNodeType = DirectedAcyclicNode<Triangle>;
-  using DirectedAcyclicNodeRef  = DirectedAcyclicNode<Triangle>*;
-  using TriangulationType       = std::vector<TriangleRef>;
-  using ChildContainerType =
-      std::array<DirectedAcyclicNodeRef, DirectedAcyclicNodeType::MAX_CHILDREN>;
+  using RingType          = Triangle::RingType;
+  using VertexRef         = Triangle::VertexRef;
+  using VertexRefSeq      = std::vector<VertexRef>;
+  using TriangleRef       = Triangle*;
+  using HalfEdgeRef       = HalfEdge*;
+  using TriangulationType = std::vector<TriangleRef>;
 
   DelaunayTriangulator();
   DelaunayTriangulator(VertexRefSeq& vertexSeq);
@@ -39,10 +35,7 @@ class DelaunayTriangulator {
 
   // a point location data structure with pointers
   // into the triangulation
-  DirectedAcyclicNodeRef dag;
-
-  // pointer to the next Vertex to add to the triangulation
-  VertexRef current;
+  TriangleRef dag;
 
  protected:
   /**
@@ -50,13 +43,15 @@ class DelaunayTriangulator {
    * @returng a reference to the face (triangle) that contains the point.
    * It, the triangle, is always in a leaf node.
    */
-  DirectedAcyclicNodeRef locatePoint(DirectedAcyclicNodeRef cur, VertexRef vertexRef);
+  TriangleRef locatePoint(TriangleRef cur, VertexRef vertexRef);
 
-  static bool contains(DirectedAcyclicNodeRef ref, VertexRef p);
   bool isEdgeLegal(HalfEdgeRef he, VertexRef s);
   bool isEdgeLegalNoSymbols(TriangleRef triangleRef, VertexRef s);
+  void legalizeEdge(HalfEdgeRef edge, VertexRef p);
+  HalfEdgeRef flipEdge(HalfEdgeRef edge, VertexRef p);
 
-  void splitFace(DirectedAcyclicNodeRef ref, VertexRef p);
+ private:
+  HalfEdgeRef triangleFactory(VertexRef p, HalfEdgeRef qw, HalfEdgeRef vw);
 };
 
 #include <impl/DelaunayTriangulator.cpp>

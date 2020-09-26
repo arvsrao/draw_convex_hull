@@ -14,11 +14,11 @@ class TriangleWithOneSymbolicPoint : public Triangle {
    * of HalfEdge ab.
    * */
   bool containsPoint(VertexRef p) const override;
-  ChildrenType splitFace(VertexRef p) override;
-
-  HalfEdgeRef halfEdgeContainsPoint(VertexRef p) override;
+  NewEdgeRefsContainerType splitFace(VertexRef p) override;
+  NewEdgeRefsContainerType splitEdge(HalfEdgeRef ref, VertexRef q, VertexRef p) override;
 
   Orientation getOrientation() override;
+  void splitEdgeHelper(HalfEdgeRef ref, VertexRef q, VertexRef p) override;
 
   ~TriangleWithOneSymbolicPoint() override = default;
 

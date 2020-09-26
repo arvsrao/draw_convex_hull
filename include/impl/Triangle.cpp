@@ -22,8 +22,8 @@ Triangle::Triangle(VertexRef a, VertexRef b, VertexRef c) : a(a), b(b), c(c) {
   ca->setTriangleRef(this);
 
   orientation = unset;
+  numChildren = 0;
 }
-void Triangle::deleteEdges() { delete he; }
 
 Triangle::Triangle(HalfEdgeRef he) : he(he), a(nullptr), b(nullptr), c(nullptr) {
   if (he) a = he->getOrigin();
@@ -35,6 +35,7 @@ Triangle::Triangle(HalfEdgeRef he) : he(he), a(nullptr), b(nullptr), c(nullptr) 
   he->getNext()->getNext()->setTriangleRef(this);
 
   orientation = unset;
+  numChildren = 0;
 }
 
 template <typename T, unsigned N>
@@ -66,11 +67,10 @@ bool Triangle::containsPoint(VertexRef p) const {
   // compute barycentric coordinates, \eta, of point p relative to this
   // triangle. As a triple barycentric coordinates would be a multiple of
   // any vector normal to the plane determined by
-  // v = (a.x - p.x, b.x - p.x, c.x -p.x) and w = (a.y - p.y, b.y - p.y, c.y -
-  // p.y). Let \mu be the cross product of v & w, then point p is inside
-  // triangle iff there is a \lambda \in \mathbb{R}^{*} (\lambda can be NOT
-  // zero) s.t. \eta = \lambda & \mu. \eta is a unit 3D vector s.t. all of its
-  // coordinates are non-negative ( lying on an edge counts ). Dividing \eta by
+  // v = (a.x - p.x, b.x - p.x, c.x -p.x) and w = (a.y - p.y, b.y - p.y, c.y - p.y). Let \mu be
+  // the cross product of v & w, then point p is inside triangle iff there is a \lambda \in
+  // \mathbb{R}^{*} (\lambda can be NOT zero) s.t. \eta = \lambda & \mu. \eta is a unit 3D vector
+  // s.t. all of its coordinates are non-negative ( lying on an edge counts ). Dividing \eta by
   // \lambda implies that it is enough to check that coordinates of \mu are all
   // either non-negative or non-positive. So,
   //                \mu = (1,1,0) & (-1,-1,0) are IN
@@ -81,14 +81,14 @@ bool Triangle::containsPoint(VertexRef p) const {
   //       \mu = det  [ a.x - p.x  b.x - p.x   c.x -p.x ]
   //                  [ a.y - p.y  b.y - p.y   c.y -p.y ]
 
-  std::array<Vertex::RingType, NUM_VERTICES_PER_FACE> mu = {
+  std::array<RingType, NUM_VERTICES_PER_FACE> mu = {
       (a->x - p->x) * (b->y - p->y) - (a->y - p->y) * (b->x - p->x),
       (a->y - p->y) * (c->x - p->x) - (a->x - p->x) * (c->y - p->y),
       (b->x - p->x) * (c->y - p->y) - (b->y - p->y) * (c->x - p->x)};
 
   // compare only nonzero entries of mu
-  Vertex::RingType firstNonZeroElement, next;
-  auto nextNonZeroElement = nonZeroElementsIterator<Vertex::RingType, NUM_VERTICES_PER_FACE>(mu);
+  RingType firstNonZeroElement, next;
+  auto nextNonZeroElement = nonZeroElementsIterator<RingType, NUM_VERTICES_PER_FACE>(mu);
   firstNonZeroElement     = nextNonZeroElement();
 
   while (!nextNonZeroElement.end()) {
@@ -99,13 +99,13 @@ bool Triangle::containsPoint(VertexRef p) const {
   return true;
 }
 
-Triangle::HalfEdgeRef Triangle::halfEdgeContainsPoint(VertexRef p) {
-  HalfEdgeRef cur = he;
-  for (int i = 0; i < NUM_VERTICES_PER_FACE; i++) {
-    if (cur->isVertexInHalfEdge(p)) return cur;
-    cur = cur->getNext();
-  }
-  return nullptr;
+void Triangle::addChild(TriangleRef child) {
+  children[numChildren % NUM_VERTICES_PER_FACE] = child;
+  numChildren++;
+}
+
+Triangle::TriangleRef Triangle::getChild(unsigned int idx) {
+  return children.at(idx % NUM_VERTICES_PER_FACE);
 }
 
 Triangle::Orientation Triangle::getOrientation() {
@@ -114,13 +114,13 @@ Triangle::Orientation Triangle::getOrientation() {
 }
 
 void Triangle::setOrientation() {
-  std::array<Vertex::RingType, 9> mat = {
+  std::array<RingType, 9> mat = {
       a->x, a->y, 1,  //
       b->x, b->y, 1,  //
       c->x, c->y, 1,  //
   };
 
-  orientation = SquareMatrix<3, Vertex::RingType>(mat).det() > 0 ? positive : negative;
+  orientation = SquareMatrix<3, RingType>(mat).det() > 0 ? positive : negative;
 }
 
 Triangle::~Triangle() {
@@ -128,28 +128,99 @@ Triangle::~Triangle() {
   delete he;
 }
 
-Triangle::ChildrenType Triangle::splitFace(Triangle::VertexRef p) {
+Triangle::NewEdgeRefsContainerType Triangle::splitEdge(HalfEdgeRef ref, VertexRef q, VertexRef p) {
+  splitEdgeHelper(ref, q, p);
+
+  NewEdgeRefsContainerType retVal = {getChild(0)->he->getPrev(), getChild(1)->he->getNext(),
+                                     nullptr, nullptr};
+
+  if (ref->getTwin() != nullptr) {
+    auto twin     = ref->getTwin();
+    auto qPrime   = twin->getPrev()->getOrigin();
+    auto neighbor = twin->getTriangleRef();
+
+    // split the neighboring face & set twin refs on the new half edges
+    neighbor->splitEdgeHelper(twin, qPrime, p);
+    neighbor->getChild(0)->he->setTwin(getChild(1)->he);
+    getChild(1)->he->setTwin(neighbor->getChild(0)->he);
+
+    neighbor->getChild(1)->he->setTwin(getChild(0)->he);
+    getChild(0)->he->setTwin(neighbor->getChild(1)->he);
+
+    delete twin;
+
+    // should return new edges.
+    retVal[3] = neighbor->getChild(0)->he->getPrev();
+    retVal[4] = neighbor->getChild(1)->he->getNext();
+  }
+
+  delete he;
+
+  // return new edges.
+  return retVal;
+}
+
+void Triangle::splitEdgeHelper(HalfEdgeRef ref, VertexRef q, VertexRef p) {
+  auto v = ref->getOrigin();
+  auto w = ref->getNext()->getOrigin();
+
+  auto vpq = new Triangle(v, p, q);
+  auto pwq = new Triangle(p, w, q);
+
+  // establish twin reference connections between the new triangles.
+  vpq->he->getNext()->setTwin(pwq->he->getPrev());
+
+  vpq->he->getPrev()->setTwin(ref->getPrev()->getTwin());
+  ref->getPrev()->getTwin()->setTwin(vpq->he->getPrev());
+
+  pwq->he->getNext()->setTwin(ref->getNext()->getTwin());
+  ref->getNext()->getTwin()->setTwin(pwq->he->getNext());
+
+  addChild(vpq);
+  addChild(pwq);
+}
+
+Triangle::NewEdgeRefsContainerType Triangle::splitFace(VertexRef p) {
   HalfEdgeRef ab = this->he;
   HalfEdgeRef bc = ab->getNext();
   HalfEdgeRef ca = ab->getPrev();
 
-  TriangleRef abp = new Triangle(this->a, this->b, p);
-  TriangleRef bcp = new Triangle(this->b, this->c, p);
-  TriangleRef cap = new Triangle(this->c, this->a, p);
+  if (ab->isVertexInHalfEdge(p))
+    return splitEdge(ab, c, p);
+  else if (bc->isVertexInHalfEdge(p))
+    return splitEdge(bc, a, p);
+  else if (ca->isVertexInHalfEdge(p))
+    return splitEdge(ca, b, p);
+  else {
+    auto abp = new Triangle(this->a, this->b, p);
+    auto bcp = new Triangle(this->b, this->c, p);
+    auto cap = new Triangle(this->c, this->a, p);
 
-  // copy twin references to new half edges
-  abp->he->setTwin(ab->getTwin());
-  bcp->he->setTwin(bc->getTwin());
-  cap->he->setTwin(ca->getTwin());
+    // copy twin references to new half edges and point the neighboring edges to the
+    // new edges
+    abp->he->setTwin(ab->getTwin());
+    ab->getTwin()->setTwin(abp->he);
 
-  // establish twin reference connections between the new triangles.
-  abp->he->getNext()->setTwin(bcp->he->getPrev());
-  bcp->he->getNext()->setTwin(cap->he->getPrev());
-  cap->he->getNext()->setTwin(abp->he->getPrev());
+    bcp->he->setTwin(bc->getTwin());
+    bc->getTwin()->setTwin(bcp->he);
 
-  // delete redundant edges.
-  this->deleteEdges();
+    cap->he->setTwin(ca->getTwin());
+    ca->getTwin()->setTwin(cap->he);
 
-  Triangle::ChildrenType retval = {abp, bcp, cap};
-  return retval;
+    // establish twin reference connections between the new triangles.
+    abp->he->getNext()->setTwin(bcp->he->getPrev());
+    bcp->he->getPrev()->setTwin(abp->he->getNext());
+
+    bcp->he->getNext()->setTwin(cap->he->getPrev());
+    cap->he->getPrev()->setTwin(bcp->he->getNext());
+
+    cap->he->getNext()->setTwin(abp->he->getPrev());
+    abp->he->getPrev()->setTwin(cap->he->getNext());
+
+    children = {abp, bcp, cap};
+    delete he;
+
+    // return (new) edges to the triangle that was split
+    return {abp->he, bcp->he, cap->he, nullptr};
+  }
 }
