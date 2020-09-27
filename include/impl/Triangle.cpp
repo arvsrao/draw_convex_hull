@@ -22,6 +22,7 @@ Triangle::Triangle(VertexRef a, VertexRef b, VertexRef c) : a(a), b(b), c(c) {
   ca->setTriangleRef(this);
 
   orientation = unset;
+  children    = {nullptr, nullptr, nullptr};
   numChildren = 0;
 }
 
@@ -35,6 +36,7 @@ Triangle::Triangle(HalfEdgeRef he) : he(he), a(nullptr), b(nullptr), c(nullptr) 
   he->getNext()->getNext()->setTriangleRef(this);
 
   orientation = unset;
+  children    = {nullptr, nullptr, nullptr};
   numChildren = 0;
 }
 
@@ -113,6 +115,13 @@ Triangle::Orientation Triangle::getOrientation() {
   return orientation;
 }
 
+uint Triangle::getNumChildren() const { return numChildren; }
+
+void Triangle::clearEdges() {
+  delete he;
+  he = nullptr;
+}
+
 void Triangle::setOrientation() {
   std::array<RingType, 9> mat = {
       a->x, a->y, 1,  //
@@ -147,14 +156,10 @@ Triangle::NewEdgeRefsContainerType Triangle::splitEdge(HalfEdgeRef ref, VertexRe
     neighbor->getChild(1)->he->setTwin(getChild(0)->he);
     getChild(0)->he->setTwin(neighbor->getChild(1)->he);
 
-    delete twin;
-
     // should return new edges.
-    retVal[3] = neighbor->getChild(0)->he->getPrev();
-    retVal[4] = neighbor->getChild(1)->he->getNext();
+    retVal[2] = neighbor->getChild(0)->he->getPrev();
+    retVal[3] = neighbor->getChild(1)->he->getNext();
   }
-
-  delete he;
 
   // return new edges.
   return retVal;
@@ -168,16 +173,29 @@ void Triangle::splitEdgeHelper(HalfEdgeRef ref, VertexRef q, VertexRef p) {
   auto pwq = new Triangle(p, w, q);
 
   // establish twin reference connections between the new triangles.
-  vpq->he->getNext()->setTwin(pwq->he->getPrev());
+  auto pw = pwq->he;
+  auto wq = pw->getNext();
+  auto qp = pw->getPrev();
 
-  vpq->he->getPrev()->setTwin(ref->getPrev()->getTwin());
-  ref->getPrev()->getTwin()->setTwin(vpq->he->getPrev());
+  auto vp = vpq->he;
+  auto pq = vp->getNext();
+  auto qv = vp->getPrev();
 
-  pwq->he->getNext()->setTwin(ref->getNext()->getTwin());
-  ref->getNext()->getTwin()->setTwin(pwq->he->getNext());
+  pq->setTwin(qp);
+  if (ref->getPrev()->getTwin() != nullptr) {
+    qv->setTwin(ref->getPrev()->getTwin());
+    ref->getPrev()->getTwin()->setTwin(qv);
+  }
+
+  if (ref->getNext()->getTwin() != nullptr) {
+    wq->setTwin(ref->getNext()->getTwin());
+    ref->getNext()->getTwin()->setTwin(wq);
+  }
 
   addChild(vpq);
   addChild(pwq);
+
+  clearEdges();
 }
 
 Triangle::NewEdgeRefsContainerType Triangle::splitFace(VertexRef p) {
@@ -199,13 +217,13 @@ Triangle::NewEdgeRefsContainerType Triangle::splitFace(VertexRef p) {
     // copy twin references to new half edges and point the neighboring edges to the
     // new edges
     abp->he->setTwin(ab->getTwin());
-    ab->getTwin()->setTwin(abp->he);
+    if (ab->getTwin() != nullptr) ab->getTwin()->setTwin(abp->he);
 
     bcp->he->setTwin(bc->getTwin());
-    bc->getTwin()->setTwin(bcp->he);
+    if (bc->getTwin() != nullptr) bc->getTwin()->setTwin(bcp->he);
 
     cap->he->setTwin(ca->getTwin());
-    ca->getTwin()->setTwin(cap->he);
+    if (ca->getTwin() != nullptr) ca->getTwin()->setTwin(cap->he);
 
     // establish twin reference connections between the new triangles.
     abp->he->getNext()->setTwin(bcp->he->getPrev());
@@ -217,8 +235,11 @@ Triangle::NewEdgeRefsContainerType Triangle::splitFace(VertexRef p) {
     cap->he->getNext()->setTwin(abp->he->getPrev());
     abp->he->getPrev()->setTwin(cap->he->getNext());
 
-    children = {abp, bcp, cap};
-    delete he;
+    addChild(abp);
+    addChild(bcp);
+    addChild(cap);
+
+    clearEdges();
 
     // return (new) edges to the triangle that was split
     return {abp->he, bcp->he, cap->he, nullptr};

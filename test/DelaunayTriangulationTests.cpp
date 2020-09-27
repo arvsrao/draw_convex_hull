@@ -78,10 +78,12 @@ TEST(DAG, SymbolicPointsTest) {
 // foo.h
 class LegalEdgeChild : public DelaunayTriangulator {
  public:
-  Vertex a = Vertex(-5, 0);
-  Vertex b = Vertex(0, 5);
-  Vertex c = Vertex(5, 0);
-  Vertex d = Vertex(0, -5);
+  Vertex a      = Vertex(-5, 0);
+  Vertex b      = Vertex(0, 5);
+  Vertex c      = Vertex(5, 0);
+  Vertex d      = Vertex(0, -5);
+  Vertex e      = Vertex(0, -3);
+  Vertex origin = Vertex(0, 0);
 
   bool isLegal(HalfEdgeRef he, HalfEdge::VertexRef s) { return isEdgeLegal(he, s); }
 };
@@ -128,4 +130,72 @@ TEST(LegalEdgeTests, AllNonSymbolicPointsTest) {
 
   EXPECT_FALSE(legalEdge.isLegal(triangle2.he, &point_inside_circle));
   EXPECT_TRUE(legalEdge.isLegal(triangle2.he, &point_outside_circle));
+}
+
+TEST(TriangulationTests, SplitTriangleWithOutSymbolsTest) {
+  auto triangleInfo      = LegalEdgeChild();
+  auto triangle          = Triangle(&triangleInfo.c, &triangleInfo.a, &triangleInfo.b);
+  auto point_in_triangle = Vertex(0, 3);
+  auto newEdges          = triangle.splitFace(&point_in_triangle);
+
+  ASSERT_EQ(triangle.getNumChildren(), 3);
+  ASSERT_EQ(triangle.he, nullptr);
+  ASSERT_EQ(newEdges[0]->getTriangleRef(), triangle.getChild(0));
+  ASSERT_EQ(newEdges[1]->getTriangleRef(), triangle.getChild(1));
+  ASSERT_EQ(newEdges[2]->getTriangleRef(), triangle.getChild(2));
+
+  // split an edge
+  auto base     = Triangle(&triangleInfo.c, &triangleInfo.a, &triangleInfo.b);
+  auto neighbor = Triangle(&triangleInfo.a, &triangleInfo.c, &triangleInfo.d);
+  neighbor.he->setTwin(base.he);
+  base.he->setTwin(neighbor.he);
+
+  newEdges = base.splitFace(&triangleInfo.origin);
+  ASSERT_EQ(base.getNumChildren(), 2);
+  ASSERT_EQ(neighbor.getNumChildren(), 2);
+
+  // traverse the edges of the child triangles.
+}
+
+TEST(TriangulationTests, SplitTriangleWithOneSymbolTest) {
+  auto triangleInfo = LegalEdgeChild();
+  auto triangle =
+      TriangleWithOneSymbolicPoint(HalfEdge::Left, &triangleInfo.origin, &triangleInfo.d);
+  auto point_in_triangle = Vertex(-2, -3);
+  auto newEdges          = triangle.splitFace(&point_in_triangle);
+
+  ASSERT_EQ(triangle.getNumChildren(), 3);
+  ASSERT_EQ(triangle.he, nullptr);
+  ASSERT_EQ(newEdges[0]->getTriangleRef(), triangle.getChild(0));
+  ASSERT_EQ(newEdges[1]->getTriangleRef(), triangle.getChild(1));
+  ASSERT_EQ(newEdges[2]->getTriangleRef(), triangle.getChild(2));
+
+  // split an edge
+  auto base = TriangleWithOneSymbolicPoint(HalfEdge::Left, &triangleInfo.origin, &triangleInfo.d);
+  auto neighbor =
+      TriangleWithOneSymbolicPoint(HalfEdge::Right, &triangleInfo.d, &triangleInfo.origin);
+  neighbor.he->setTwin(base.he);
+  base.he->setTwin(neighbor.he);
+  newEdges = base.splitFace(&triangleInfo.e);
+
+  ASSERT_EQ(base.getNumChildren(), 2);
+  ASSERT_EQ(neighbor.getNumChildren(), 2);
+  ASSERT_EQ(base.getChild(0)->he->getOrigin(), &triangleInfo.origin);
+  ASSERT_EQ(base.getChild(1)->he->getOrigin(), &triangleInfo.e);
+  ASSERT_EQ(neighbor.getChild(0)->he->getOrigin(), &triangleInfo.d);
+  ASSERT_EQ(neighbor.getChild(1)->he->getOrigin(), &triangleInfo.e);
+
+  // traverse the edges of the child triangles.
+}
+
+TEST(TriangulationTests, SplitTriangleWithTwoSymbolsTest) {
+  auto triangleInfo = LegalEdgeChild();
+  auto triangle     = TriangleWithTwoSymbolicPoints(&triangleInfo.origin);
+  auto newEdges     = triangle.splitFace(&triangleInfo.e);
+
+  ASSERT_EQ(triangle.getNumChildren(), 3);
+  ASSERT_EQ(triangle.he, nullptr);
+  ASSERT_EQ(newEdges[0]->getTriangleRef(), triangle.getChild(0));
+  ASSERT_EQ(newEdges[1]->getTriangleRef(), triangle.getChild(1));
+  ASSERT_EQ(newEdges[2]->getTriangleRef(), triangle.getChild(2));
 }

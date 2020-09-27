@@ -9,6 +9,7 @@ TriangleWithTwoSymbolicPoints::TriangleWithTwoSymbolicPoints(VertexRef p)
 
   // fixed and arbitrary choice. all half edges are symbolic anyway.
   orientation = negative;
+  children    = {nullptr, nullptr, nullptr};
 }
 
 TriangleWithTwoSymbolicPoints::TriangleWithTwoSymbolicPoints(VertexRef p, HalfEdge::Symbol a,
@@ -19,6 +20,7 @@ TriangleWithTwoSymbolicPoints::TriangleWithTwoSymbolicPoints(VertexRef p, HalfEd
 
   // fixed and arbitrary choice. all half edges are symbolic anyway.
   orientation = he->getSymbol() == HalfEdge::Left ? negative : positive;
+  children    = {nullptr, nullptr, nullptr};
 }
 
 bool TriangleWithTwoSymbolicPoints::containsPoint(VertexRef p) const { return *p < *b; }
@@ -40,13 +42,13 @@ Triangle::NewEdgeRefsContainerType TriangleWithTwoSymbolicPoints::splitFace(Tria
   // copy twin references to new half edges
   auto newAB = bpa->he->getPrev();
   newAB->setTwin(ab->getTwin());
-  ab->getTwin()->setTwin(newAB);
+  if (ab->getTwin() != nullptr) ab->getTwin()->setTwin(newAB);
 
   pbc->he->getNext()->setTwin(bc->getTwin());
-  bc->getTwin()->setTwin(pbc->he->getNext());
+  if (bc->getTwin() != nullptr) bc->getTwin()->setTwin(pbc->he->getNext());
 
   apc->he->getPrev()->setTwin(ca->getTwin());
-  ca->getTwin()->setTwin(apc->he->getPrev());
+  if (ca->getTwin() != nullptr) ca->getTwin()->setTwin(apc->he->getPrev());
 
   // establish twin reference connections between the new triangles.
   newAB->getNext()->setTwin(pbc->he);
@@ -58,7 +60,11 @@ Triangle::NewEdgeRefsContainerType TriangleWithTwoSymbolicPoints::splitFace(Tria
   apc->he->setTwin(newAB->getPrev());
   newAB->getPrev()->setTwin(apc->he);
 
-  children = {bpa, pbc, apc};
+  addChild(bpa);
+  addChild(pbc);
+  addChild(apc);
+
+  clearEdges();
 
   return {newAB->getNext(), pbc->he->getPrev(), apc->he, nullptr};
 }

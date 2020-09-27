@@ -27,6 +27,7 @@ class Triangle {
 
   void addChild(TriangleRef child);
   TriangleRef getChild(unsigned idx);
+  uint getNumChildren() const;
 
   virtual Orientation getOrientation();
 
@@ -47,6 +48,7 @@ class Triangle {
   virtual NewEdgeRefsContainerType splitEdge(HalfEdgeRef ref, VertexRef q, VertexRef p);
 
   virtual void setOrientation();
+  void clearEdges();
 
  private:
   uint numChildren;
