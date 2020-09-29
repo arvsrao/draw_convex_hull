@@ -199,3 +199,23 @@ TEST(TriangulationTests, SplitTriangleWithTwoSymbolsTest) {
   ASSERT_EQ(newEdges[1]->getTriangleRef(), triangle.getChild(1));
   ASSERT_EQ(newEdges[2]->getTriangleRef(), triangle.getChild(2));
 }
+
+TEST(TriangulationTest, FlipEdgeTest) {
+  auto triangleInfo = LegalEdgeChild();
+
+  auto base     = Triangle(&triangleInfo.c, &triangleInfo.a, &triangleInfo.b);
+  auto neighbor = Triangle(&triangleInfo.a, &triangleInfo.c, &triangleInfo.d);
+
+  auto ca = base.he;
+  auto ac = neighbor.he;
+  ca->setTwin(ac);
+  ac->setTwin(ca);
+
+  auto bd = DelaunayTriangulator::flipEdge(base.he, &triangleInfo.b);
+  auto db = bd->getTwin();
+
+  ASSERT_EQ(bd->getOrigin(), &triangleInfo.b);
+  ASSERT_EQ(db->getOrigin(), &triangleInfo.d);
+  ASSERT_EQ(bd->getPrev()->getOrigin(), &triangleInfo.c);
+  ASSERT_EQ(db->getPrev()->getOrigin(), &triangleInfo.a);
+}

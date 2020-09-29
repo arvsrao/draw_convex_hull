@@ -35,6 +35,9 @@ class Triangle {
   virtual bool containsPoint(VertexRef p) const;
   virtual NewEdgeRefsContainerType splitFace(VertexRef p);
 
+  /** clear the edges of the triangle. */
+  void clearEdges();
+
   /**
    * VertexRef p is in HalfEdgeRef ref. q is the triangle vertex opposite ref
    * */
@@ -48,7 +51,6 @@ class Triangle {
   virtual NewEdgeRefsContainerType splitEdge(HalfEdgeRef ref, VertexRef q, VertexRef p);
 
   virtual void setOrientation();
-  void clearEdges();
 
  private:
   uint numChildren;

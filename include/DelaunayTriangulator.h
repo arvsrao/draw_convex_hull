@@ -26,6 +26,8 @@ class DelaunayTriangulator {
    */
   void operator()();
 
+  static HalfEdgeRef flipEdge(HalfEdgeRef vw, VertexRef p);
+
  private:
   // points to be triangulated
   VertexRefSeq points;
@@ -48,10 +50,9 @@ class DelaunayTriangulator {
   bool isEdgeLegal(HalfEdgeRef he, VertexRef s);
   bool isEdgeLegalNoSymbols(TriangleRef triangleRef, VertexRef s);
   void legalizeEdge(HalfEdgeRef edge, VertexRef p);
-  HalfEdgeRef flipEdge(HalfEdgeRef edge, VertexRef p);
 
  private:
-  HalfEdgeRef triangleFactory(VertexRef p, HalfEdgeRef qw, HalfEdgeRef vw);
+  static HalfEdgeRef triangleFactory(VertexRef p, HalfEdgeRef qw, HalfEdgeRef vw);
 };
 
 #include <impl/DelaunayTriangulator.cpp>

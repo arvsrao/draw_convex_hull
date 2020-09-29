@@ -65,59 +65,81 @@ DelaunayTriangulator::HalfEdgeRef DelaunayTriangulator::triangleFactory(VertexRe
   // the flipped edge goes from p to q
   // edge goes from v to w
   // nonSymbolicPoint is never symbolic
-  TriangleRef newTriangle;
+  TriangleRef triangle;
   if (qw->hasSymbol() && vw->hasSymbol()) {
     // v (symbolic) -> p -> q (symbolic)
-    newTriangle = new TriangleWithTwoSymbolicPoints(p, vw->getSymbol(), qw->getSymbol());
-    return newTriangle->he->getNext();
+    auto v   = vw->getSymbol();
+    auto q   = qw->getSymbol();
+    triangle = new TriangleWithTwoSymbolicPoints(p, v, q);
+    return triangle->he->getNext();
   } else if (qw->hasSymbol() && !vw->hasSymbol()) {
-    // v -> p -> q ia a  {symbol}
-    newTriangle = new TriangleWithOneSymbolicPoint(qw->getSymbol(), vw->getOrigin(), p);
-    return newTriangle->he->getNext();
+    // v -> p -> q ia a  {symbol} OR
+    auto v   = vw->getOrigin();
+    auto q   = qw->getSymbol();
+    triangle = new TriangleWithOneSymbolicPoint(q, v, p);
+
+    // return edge pq of new triangle
+    return triangle->he->getNext();
   } else if (!qw->hasSymbol() && vw->hasSymbol()) {
-    // p -> q -> w is a {symbol}
-    newTriangle = new TriangleWithOneSymbolicPoint(vw->getSymbol(), p, qw->getOrigin());
+    // p -> q -> w is a {symbol} OR p -> w -> q is a {symbol}
+    auto v   = vw->getSymbol();
+    auto q   = qw->getOrigin();
+    triangle = new TriangleWithOneSymbolicPoint(v, p, q);
   } else {
-    newTriangle = new Triangle(p, qw->getOrigin(), vw->getOrigin());
+    auto v   = vw->getOrigin();
+    auto q   = qw->getOrigin();
+    triangle = new Triangle(p, q, v);
   }
-  return newTriangle->he;
+  return triangle->he;
 }
 
 DelaunayTriangulator::HalfEdgeRef DelaunayTriangulator::flipEdge(HalfEdgeRef vw, VertexRef p) {
   // edge would be legal if twinRef were nullptr or there was no neighbor
-  auto wv = vw->getTwin();
-  auto qw = wv->getPrev();
+  auto wv    = vw->getTwin();
+  auto oldQW = wv->getPrev();
+  auto oldPV = vw->getPrev();
+  auto oldWP = vw->getNext();
+  auto oldVQ = wv->getNext();
 
-  //  auto pqv = triangleFactory(nonSymbolicPoint, q, edge->getOrigin());
-  //  auto pwq = triangleFactory(nonSymbolicPoint, twinRef->getOrigin(), q);
-  auto pq = triangleFactory(p, qw, vw);  // half edge pq from triangle pqv
-  auto pw = triangleFactory(p, wv, qw);  // half edge pw from triangle pwq
+  auto pq = triangleFactory(p, oldQW, vw);  // half edge pq from triangle pqv
+  auto pw = triangleFactory(p, wv, oldQW);  // half edge pw from triangle pwq
 
   // establish twin reference connections between the new triangles.
   pq->setTwin(pw->getPrev());  // flipped half edge
   pw->getPrev()->setTwin(pq);
 
-  vw->getPrev()->getTwin()->setTwin(pq->getPrev());
-  pq->getPrev()->setTwin(vw->getPrev()->getTwin());
+  if (oldPV->getTwin() != nullptr) {
+    oldPV->getTwin()->setTwin(pq->getPrev());
+    pq->getPrev()->setTwin(oldPV->getTwin());
+  }
 
-  vw->getNext()->getTwin()->setTwin(pw);
-  pw->setTwin(vw->getNext()->getTwin());
+  if (oldWP->getTwin() != nullptr) {
+    oldWP->getTwin()->setTwin(pw);
+    pw->setTwin(oldWP->getTwin());
+  }
 
-  wv->getNext()->getTwin()->setTwin(pq->getNext());
-  pq->getNext()->setTwin(wv->getNext()->getTwin());
+  if (oldVQ->getTwin() != nullptr) {
+    oldVQ->getTwin()->setTwin(pq->getNext());
+    pq->getNext()->setTwin(oldVQ->getTwin());
+  }
 
-  qw->getTwin()->setTwin(pw->getNext());
-  pw->getNext()->setTwin(qw->getTwin());
+  if (oldQW->getTwin() != nullptr) {
+    oldQW->getTwin()->setTwin(pw->getNext());
+    pw->getNext()->setTwin(oldQW->getTwin());
+  }
 
-  // set new triangles as children of the triangles incident to edge and twinRef
-  vw->getTriangleRef()->addChild(pq->getTriangleRef());
-  vw->getTriangleRef()->addChild(pw->getTriangleRef());
-  wv->getTriangleRef()->addChild(pq->getTriangleRef());
-  wv->getTriangleRef()->addChild(pw->getTriangleRef());
-
+  // set the new triangles as children of both the triangle incident to edge vw & wv;
   // delete edges of triangles pvw && wvq
-  delete vw;
-  delete wv;
+  TriangleRef pvw = vw->getTriangleRef();
+  TriangleRef wvq = wv->getTriangleRef();
+
+  pvw->addChild(pq->getTriangleRef());
+  pvw->addChild(pw->getTriangleRef());
+  pvw->clearEdges();
+
+  wvq->addChild(pq->getTriangleRef());
+  wvq->addChild(pw->getTriangleRef());
+  wvq->clearEdges();
 
   // return flipped edge pq
   return pq;
