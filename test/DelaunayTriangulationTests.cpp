@@ -211,11 +211,71 @@ TEST(TriangulationTest, FlipEdgeTest) {
   ca->setTwin(ac);
   ac->setTwin(ca);
 
-  auto bd = DelaunayTriangulator::flipEdge(base.he, &triangleInfo.b);
+  auto bd = DelaunayTriangulator::flipEdge(ca, &triangleInfo.b);
   auto db = bd->getTwin();
 
   ASSERT_EQ(bd->getOrigin(), &triangleInfo.b);
   ASSERT_EQ(db->getOrigin(), &triangleInfo.d);
+  ASSERT_EQ(bd->getPrev()->getOrigin(), &triangleInfo.c);
+  ASSERT_EQ(db->getPrev()->getOrigin(), &triangleInfo.a);
+}
+
+TEST(TriangulationTest, FlipEdgeLeftSymbolTest) {
+  auto triangleInfo = LegalEdgeChild();
+
+  auto base     = TriangleWithOneSymbolicPoint(HalfEdge::Left, &triangleInfo.c, &triangleInfo.a);
+  auto neighbor = Triangle(&triangleInfo.a, &triangleInfo.c, &triangleInfo.d);
+
+  auto ca = base.he;
+  auto ac = neighbor.he;
+  ca->setTwin(ac);
+  ac->setTwin(ca);
+
+  auto db = DelaunayTriangulator::flipEdge(ac, &triangleInfo.d);
+  auto bd = db->getTwin();
+
+  ASSERT_EQ(bd->getSymbol(), HalfEdge::Left);
+  ASSERT_EQ(db->getOrigin(), &triangleInfo.d);
+  ASSERT_EQ(bd->getPrev()->getOrigin(), &triangleInfo.c);
+  ASSERT_EQ(db->getPrev()->getOrigin(), &triangleInfo.a);
+}
+
+TEST(TriangulationTest, FlipEdgeRightSymbolTest) {
+  auto triangleInfo = LegalEdgeChild();
+
+  auto base     = Triangle(&triangleInfo.c, &triangleInfo.a, &triangleInfo.b);
+  auto neighbor = TriangleWithOneSymbolicPoint(HalfEdge::Right, &triangleInfo.a, &triangleInfo.c);
+
+  auto ca = base.he;
+  auto ac = neighbor.he;
+  ca->setTwin(ac);
+  ac->setTwin(ca);
+
+  auto bd = DelaunayTriangulator::flipEdge(ca, &triangleInfo.b);
+  auto db = bd->getTwin();
+
+  ASSERT_EQ(bd->getOrigin(), &triangleInfo.b);
+  ASSERT_EQ(db->getSymbol(), HalfEdge::Right);
+  ASSERT_EQ(bd->getPrev()->getOrigin(), &triangleInfo.c);
+  ASSERT_EQ(db->getPrev()->getOrigin(), &triangleInfo.a);
+}
+
+TEST(TriangulationTest, FlipEdgeTwoSymbolTest) {
+  auto triangleInfo = LegalEdgeChild();
+
+  auto base     = TriangleWithTwoSymbolicPoints(&triangleInfo.d);
+  auto neighbor = TriangleWithOneSymbolicPoint(HalfEdge::Right, &triangleInfo.a, &triangleInfo.c);
+
+  auto ca = base.he;
+  auto ac = neighbor.he;
+  ca->setTwin(ac);
+  ac->setTwin(ca);
+
+  auto bd = DelaunayTriangulator::flipEdge(ca, &triangleInfo.b);
+  auto db = bd->getTwin();
+
+  ASSERT_EQ(bd->getOrigin(), &triangleInfo.b);
+  ASSERT_EQ(db->getSymbol(), HalfEdge::Right);
   ASSERT_EQ(bd->getPrev()->getOrigin(), &triangleInfo.c);
   ASSERT_EQ(db->getPrev()->getOrigin(), &triangleInfo.a);
 }
